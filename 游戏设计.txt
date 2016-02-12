@@ -1,0 +1,16 @@
+main.py         ---- 主循环，该文件会调用其他文件来展示不同界面
+    menu.py         ---- 菜单界面
+        board.py        ---- 棋盘类
+        hud.py          ---- 记分板类
+    game.py         ---- 游戏界面
+    rules.py        ---- 游戏规则界面
+    setLevel.py    ---- 设置游戏等级界面
+    matching.py     ---- 匹配界面
+
+settings.py     ---- 保存游戏默认的常量
+
+menu:
+    发起新游戏
+    匹配
+    游戏规则
+    退出

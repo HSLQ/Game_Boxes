@@ -7,6 +7,9 @@ import PodSixNet
 import PodSixNet.Channel
 import PodSixNet.Server
 from time import sleep
+
+import Settings.py
+
 class ClientChannel(PodSixNet.Channel.Channel):
     def Network(self, data):
         print (data)
@@ -25,7 +28,12 @@ class ClientChannel(PodSixNet.Channel.Channel):
         self.gameID = data["gameID"]
     #tells server to place line
         self._server.placeLine(is_horizontal, x, y, data, self.gameID, num)
-     
+    
+    def Network_setLevel(self, data):
+        self.gameID = data["gameID"]
+        self.level = data["level"]
+        self._server.setLevel(gameID, level)
+
     def Close(self):
         self._server.close(self.gameID)
 
@@ -38,20 +46,34 @@ class BoxesServer(PodSixNet.Server.Server):
  
     channelClass = ClientChannel
 
+    def getGame(self, gameID):
+        return [a for a in self.games if a.gameID==gameID]
+
+    def setLevel(self, gameID, level):
+        game = getGame(gameID)
+        if len(game) == 1:
+            game[0].setLevel(level)
+
     def placeLine(self, is_horizontal, x, y, data, gameID, num):
-        game = [a for a in self.games if a.gameID==gameID]
-        if len(game)==1:
+        game = getGame(gameID)
+        if len(game) == 1:
             game[0].placeLine(is_horizontal, x, y, data, num)
- 
+    
+    # 当有新的游戏连接到客户端会触发这个函数
     def Connected(self, channel, addr):
         print ('new connection:', channel)
         if (self.queue == None):
+            # 如果是 host 玩家
             print ("Left")
             self.currentIndex += 1
             channel.gameID = self.currentIndex
+            # 新建游戏房间，此时 level 为 undefined
             self.queue = Game(channel, self.currentIndex)
+            # 发送 undefined 给客户端，提醒客户端设置
+            self.Send({"action":"setLevel", "level":UNDEFINED})
         else:
             channel.gameID = self.currentIndex
+            self.Send({"action":"setLevel", "level":self.queue.level})
             print ("Right")
             self.queue.playerR = channel
             self.queue.playerL.Send({"action":"startGame", "player":0, "gameID": self.queue.gameID})
@@ -97,14 +119,18 @@ class Game():
     """judge obj of each game"""
     def __init__(self, playerL, currentIndex):
         self.turn = 0
-        self.owner = [[False for x in range(6)] for y in range(6)]
-        self.boardH = [[False for x in range(6)] for y in range(7)]
-        self.boardV = [[False for x in range(7)] for y in range(6)]
+        self.level = UNDEFINED
+        self.owner = [[False for x in range(self.level)] for y in range(self.level)]
+        self.boardH = [[False for x in range(self.level)] for y in range(self.level + 1)]
+        self.boardV = [[False for x in range(self.level + 1)] for y in range(self.level)]
 
-        self.playerL = playerL
+        self.playerL = playerL 
         self.playerR = None
 
         self.gameID = currentIndex
+
+    def setLevel(self, level):
+        self.level = level
 
     def placeLine(self, is_horizontal, x, y, data, num):
         if (num == self.turn):

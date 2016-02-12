@@ -11,7 +11,7 @@ import PodSixNet
 
 IMAGE_PATH = "Resource/Image/"
 MEDIA_PATH = "Resource/Media/"
-SIDE_LENGTH = 3
+SIDE_LENGTH = 6
 EDGE_LENGTH = SIDE_LENGTH + 1
 STICK_LENGTH = 59
 GAP_SIZE = 5
@@ -22,12 +22,16 @@ BOARD_LENGTH = PART_LENGTH * SIDE_LENGTH + GAP_SIZE
 HUD_HEIGHT = 110
 
 # 记分板各元素的位置
-SCORE_TEXT_BOTTOM = 59
+LABEL_BOTTOM = 95
+SCORE_TEXT_BOTTOM = 59 
 SCORE_NUM_BOTTOM = 45
 SCORE_TEXT_LEFT = 10
 SCORE_NUM_LEFT = 12
 SCORE_TEXT_RIGHT = 89
 SCORE_NUM_RIGHT = 89
+FLAG_TEXT_RIGHT = 160
+FLAG_COLOR_RIGHT = 30
+FLAG_COLOR_BOTTOM = 95
 
 # 放置一条线 10 帧后才能进行下一个动作
 JUST_PLACED = 10
@@ -41,8 +45,30 @@ class BoxesGame(ConnectionListener):
     def __init__(self):
         pygame.init()
 
+        self.level = 6
+
+        # ---
+        # self.Connect()
+        
+        address = raw_input("Address of Server: ")
+        try:
+            if not address:
+                host, port="localhost", 8000
+            else:
+                host,port=address.split(":")
+            self.Connect((host, int(port)))
+        except:
+            print "Error Connecting to Server"
+            print "Usage:", "host:port"
+            print "e.g.", "localhost:31425"
+            exit()
+        print "Boxes client started"
+
         # 初始化格子数据
         # ---
+        
+        if (self.level == -1):
+            self.level = int(raw_input("input level:"))
         self.initBoard()
 
         self.width, self.height = self.board_length, self.board_length + HUD_HEIGHT
@@ -52,7 +78,7 @@ class BoxesGame(ConnectionListener):
         self.clock = pygame.time.Clock();
 
         # ---
-        
+        # 横纵两组线
         self.boardH = [[False for x in range(self.level)] for y in range(self.edge_length)]
         self.boardV = [[False for x in range(self.edge_length)] for y in range(self.level)]
 
@@ -72,6 +98,8 @@ class BoxesGame(ConnectionListener):
         
         self.gameID = None
         self.num = None
+        self.marker = self.blueplayer
+        self.othermarker = self.greenplayer
 
         self.justPlaced = 10
 
@@ -79,37 +107,19 @@ class BoxesGame(ConnectionListener):
         # 记录了占领和失去的格子
         self.owner = [[0 for x in range(self.level)] for y in range(self.level)]
 
-        # ---
-        self.Connect()
-        
-        # address=raw_input("Address of Server: ")
-        # try:
-        #     if not address:
-        #         host, port="localhost", 8000
-        #     else:
-        #         host,port=address.split(":")
-        #     self.Connect((host, int(port)))
-        # except:
-        #     print "Error Connecting to Server"
-        #     print "Usage:", "host:port"
-        #     print "e.g.", "localhost:31425"
-        #     exit()
-        # print "Boxes client started"
-
-        # self.waitingToStart()
+        self.waitingTheBattle()
 
     def initBoard(self):
-        self.level = int(raw_input("input level:"))
         self.edge_length = self.level + 1
         self.board_length = PART_LENGTH * self.level + GAP_SIZE
         self.total_square = self.level * self.level
 
-    def waitingToStart(self):
+    def waitingTheBattle(self):
         self.running=False
         while not self.running:
             self.Pump()
             connection.Pump()
-            sleep(0.01)
+            sleep(1.00)
         # determine attributes from player #
         if self.num == 0:
             self.turn = True
@@ -232,8 +242,13 @@ class BoxesGame(ConnectionListener):
         # label
         myFont = pygame.font.SysFont(None, 32)
         label = myFont.render("Your Turn:", 1, (255, 255, 255))
-        self.screen.blit(label, (10, self.board_length + 15))
+        self.screen.blit(label, (10, self.height - LABEL_BOTTOM))
+        # indicator
         self.screen.blit(self.greenindicator if self.turn else self.redindicator, (INDICATOR_GAP, self.board_length + 10))
+        # color flag
+        flagText = myFont.render("Your Color:", 1, (255, 255, 255))
+        self.screen.blit(flagText, (self.board_length - FLAG_TEXT_RIGHT, self.height - LABEL_BOTTOM))
+        self.screen.blit(pygame.transform.scale(self.marker, (20, 20)), (self.board_length - FLAG_COLOR_RIGHT, self.height - FLAG_COLOR_BOTTOM))
 
         # score
         myFont64 = pygame.font.SysFont(None, 64)
@@ -257,6 +272,12 @@ class BoxesGame(ConnectionListener):
                         self.screen.blit(self.marker, (x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH + GAP_SIZE))
                     if self.owner[x][y] == "lose":
                         self.screen.blit(self.othermarker, (x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH + GAP_SIZE))
+
+    def Network_setLevel(self, data):
+        self.level = data["level"]
+        if (self.level == -1):
+            self.level = int(raw_input("input level:"))
+        self.Send("action":"setLevel", "gameID":self.gameID, "level":self.level)
 
     def Network_startGame(self, data):
         self.running = True
