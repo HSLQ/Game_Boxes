@@ -20,6 +20,8 @@ PART_LENGTH = STICK_LENGTH + GAP_SIZE
 
 BOARD_LENGTH = PART_LENGTH * SIDE_LENGTH + GAP_SIZE
 HUD_HEIGHT = 110
+
+# 记分板各元素的位置
 SCORE_TEXT_BOTTOM = 59
 SCORE_NUM_BOTTOM = 45
 SCORE_TEXT_LEFT = 10
@@ -38,36 +40,44 @@ class BoxesGame(ConnectionListener):
     """drawing lines, make boxes to earn points"""
     def __init__(self):
         pygame.init()
-        width, height = PART_LENGTH * SIDE_LENGTH + GAP_SIZE, HEIGHT
-        self.screen = pygame.display.set_mode((width, height))
+
+        # 初始化格子数据
+        # ---
+        self.initBoard()
+
+        self.width, self.height = self.board_length, self.board_length + HUD_HEIGHT
+        self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Boxes")
 
         self.clock = pygame.time.Clock();
 
         # ---
         
-        self.boardH = [[False for x in range(SIDE_LENGTH)] for y in range(EDGE_LENGTH)]
-        self.boardV = [[False for x in range(EDGE_LENGTH)] for y in range(SIDE_LENGTH)]
+        self.boardH = [[False for x in range(self.level)] for y in range(self.edge_length)]
+        self.boardV = [[False for x in range(self.edge_length)] for y in range(self.level)]
 
         # ---
         # load resources
         self.initGraphics()
         self.initSound()
-        pygame.font.init();
+        pygame.font.init()
 
         # ---
         # set hud
+        # 当前玩家信息
         self.turn = True
-
         self.myScore = 0
         self.otherScore = 0
+        self.pWin = False
+        
         self.gameID = None
         self.num = None
-        self.pWin = False
+
         self.justPlaced = 10
 
         # ---
-        self.owner = [[0 for x in range(SIDE_LENGTH)] for y in range(SIDE_LENGTH)]
+        # 记录了占领和失去的格子
+        self.owner = [[0 for x in range(self.level)] for y in range(self.level)]
 
         # ---
         self.Connect()
@@ -87,6 +97,12 @@ class BoxesGame(ConnectionListener):
         # print "Boxes client started"
 
         # self.waitingToStart()
+
+    def initBoard(self):
+        self.level = int(raw_input("input level:"))
+        self.edge_length = self.level + 1
+        self.board_length = PART_LENGTH * self.level + GAP_SIZE
+        self.total_square = self.level * self.level
 
     def waitingToStart(self):
         self.running=False
@@ -109,7 +125,7 @@ class BoxesGame(ConnectionListener):
         self.Pump()
 
     def update(self):
-        if (self.myScore + self.otherScore == TOTAL_SQUARE):
+        if (self.myScore + self.otherScore == self.total_square):
             self.pWin = True if self.myScore > self.otherScore else False
             return 1
         self.justPlaced -= 1
@@ -151,7 +167,7 @@ class BoxesGame(ConnectionListener):
         self.winningscreen = pygame.image.load(IMAGE_PATH + "youwin.png")
         self.gameover = pygame.image.load(IMAGE_PATH + "gameover.png")
         self.score_panel = pygame.image.load(IMAGE_PATH + "score_panel.png")
-        self.score_panel = pygame.transform.scale(self.score_panel, (WIDTH, HUD_HEIGHT))
+        self.score_panel = pygame.transform.scale(self.score_panel, (self.board_length, HUD_HEIGHT))
 
     def initSound(self):
         pygame.mixer.music.load(MEDIA_PATH + "music.wav")
@@ -161,21 +177,21 @@ class BoxesGame(ConnectionListener):
         pygame.mixer.music.play()
 
     def drawBoard(self):
-        for y in range(EDGE_LENGTH):
-            for x in range(SIDE_LENGTH):
+        for y in range(self.edge_length):
+            for x in range(self.level):
                 if not self.boardH[y][x]:
                     self.screen.blit(self.normallineH, [x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH])
                 else:
                     self.screen.blit(self.bar_doneH, [x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH])
-        for y in range(SIDE_LENGTH):
-            for x in range(EDGE_LENGTH):
+        for y in range(self.level):
+            for x in range(self.edge_length):
                 if not self.boardV[y][x]:
                     self.screen.blit(self.normalLiveV, [x * PART_LENGTH, y * PART_LENGTH + GAP_SIZE])
                 else:
                     self.screen.blit(self.bar_doneV, [x * PART_LENGTH, y * PART_LENGTH + GAP_SIZE])
         #draw separators
-        for x in range(EDGE_LENGTH):
-            for y in range(EDGE_LENGTH):
+        for x in range(self.edge_length):
+            for y in range(self.edge_length):
                 self.screen.blit(self.separators, [x * PART_LENGTH, y * PART_LENGTH])
 
     def flowLines(self):
@@ -211,13 +227,13 @@ class BoxesGame(ConnectionListener):
                 self.Send({"action": "place", "x":xpos, "y":ypos, "is_horizontal": is_horizontal, "gameID": self.gameID, "num": self.num})
 
     def drawHUD(self):
-        self.screen.blit(self.score_panel, [0, BOARD_LENGTH])
+        self.screen.blit(self.score_panel, [0, self.board_length])
 
         # label
         myFont = pygame.font.SysFont(None, 32)
         label = myFont.render("Your Turn:", 1, (255, 255, 255))
-        self.screen.blit(label, (10, BOARD_LENGTH + 15))
-        self.screen.blit(self.greenindicator if self.turn else self.redindicator, (INDICATOR_GAP, BOARD_LENGTH + 10))
+        self.screen.blit(label, (10, self.board_length + 15))
+        self.screen.blit(self.greenindicator if self.turn else self.redindicator, (INDICATOR_GAP, self.board_length + 10))
 
         # score
         myFont64 = pygame.font.SysFont(None, 64)
@@ -228,14 +244,14 @@ class BoxesGame(ConnectionListener):
         scoreTextMe = myFont20.render("Your Point", 1, (255, 255, 255))
         scoreTextOther = myFont20.render("Other Player", 1, (255, 255, 255))
 
-        self.screen.blit(scoreTextMe, (SCORE_TEXT_LEFT, HEIGHT - SCORE_TEXT_BOTTOM))
-        self.screen.blit(myScore, (SCORE_NUM_LEFT, HEIGHT - SCORE_NUM_BOTTOM))
-        self.screen.blit(scoreTextOther, (BOARD_LENGTH - SCORE_TEXT_RIGHT, HEIGHT - SCORE_TEXT_BOTTOM))
-        self.screen.blit(otherScore, (BOARD_LENGTH - SCORE_TEXT_RIGHT, HEIGHT - SCORE_NUM_BOTTOM))
+        self.screen.blit(scoreTextMe, (SCORE_TEXT_LEFT, self.height - SCORE_TEXT_BOTTOM))
+        self.screen.blit(myScore, (SCORE_NUM_LEFT, self.height - SCORE_NUM_BOTTOM))
+        self.screen.blit(scoreTextOther, (self.board_length - SCORE_TEXT_RIGHT, self.height - SCORE_TEXT_BOTTOM))
+        self.screen.blit(otherScore, (self.board_length - SCORE_TEXT_RIGHT, self.height - SCORE_NUM_BOTTOM))
 
     def drawOwnerMap(self):
-        for x in range(SIDE_LENGTH):
-            for y in range(SIDE_LENGTH):
+        for x in range(self.level):
+            for y in range(self.level):
                 if self.owner[x][y] != 0:
                     if self.owner[x][y] == "win":
                         self.screen.blit(self.marker, (x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH + GAP_SIZE))
