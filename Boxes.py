@@ -11,11 +11,26 @@ import PodSixNet
 
 IMAGE_PATH = "Resource/Image/"
 MEDIA_PATH = "Resource/Media/"
-SIDE_LENGTH = 6
+SIDE_LENGTH = 3
 EDGE_LENGTH = SIDE_LENGTH + 1
 STICK_LENGTH = 59
 GAP_SIZE = 5
+INDICATOR_GAP = 130
 PART_LENGTH = STICK_LENGTH + GAP_SIZE
+
+BOARD_LENGTH = PART_LENGTH * SIDE_LENGTH + GAP_SIZE
+HUD_HEIGHT = 110
+SCORE_TEXT_BOTTOM = 59
+SCORE_NUM_BOTTOM = 45
+SCORE_TEXT_LEFT = 10
+SCORE_NUM_LEFT = 12
+SCORE_TEXT_RIGHT = 89
+SCORE_NUM_RIGHT = 89
+
+# 放置一条线 10 帧后才能进行下一个动作
+JUST_PLACED = 10
+
+WIDTH, HEIGHT = BOARD_LENGTH, BOARD_LENGTH + HUD_HEIGHT
 
 TOTAL_SQUARE = SIDE_LENGTH * SIDE_LENGTH
 
@@ -23,7 +38,7 @@ class BoxesGame(ConnectionListener):
     """drawing lines, make boxes to earn points"""
     def __init__(self):
         pygame.init()
-        width, height = 389, 489
+        width, height = PART_LENGTH * SIDE_LENGTH + GAP_SIZE, HEIGHT
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Boxes")
 
@@ -31,8 +46,8 @@ class BoxesGame(ConnectionListener):
 
         # ---
         
-        self.boardH = [[False for x in range(6)] for y in range(7)]
-        self.boardV = [[False for x in range(7)] for y in range(6)]
+        self.boardH = [[False for x in range(SIDE_LENGTH)] for y in range(EDGE_LENGTH)]
+        self.boardV = [[False for x in range(EDGE_LENGTH)] for y in range(SIDE_LENGTH)]
 
         # ---
         # load resources
@@ -46,31 +61,32 @@ class BoxesGame(ConnectionListener):
 
         self.myScore = 0
         self.otherScore = 0
-        self.pWin = False
         self.gameID = None
         self.num = None
+        self.pWin = False
         self.justPlaced = 10
 
         # ---
-        self.owner = [[0 for x in range(6)] for y in range(6)]
+        self.owner = [[0 for x in range(SIDE_LENGTH)] for y in range(SIDE_LENGTH)]
 
         # ---
-        # self.Connect()
-        address=raw_input("Address of Server: ")
-        try:
-            if not address:
-                host, port="localhost", 8000
-            else:
-                host,port=address.split(":")
-            self.Connect((host, int(port)))
-        except:
-            print "Error Connecting to Server"
-            print "Usage:", "host:port"
-            print "e.g.", "localhost:31425"
-            exit()
-        print "Boxes client started"
-        # self.finished();
-        self.waitingToStart()
+        self.Connect()
+        
+        # address=raw_input("Address of Server: ")
+        # try:
+        #     if not address:
+        #         host, port="localhost", 8000
+        #     else:
+        #         host,port=address.split(":")
+        #     self.Connect((host, int(port)))
+        # except:
+        #     print "Error Connecting to Server"
+        #     print "Usage:", "host:port"
+        #     print "e.g.", "localhost:31425"
+        #     exit()
+        # print "Boxes client started"
+
+        # self.waitingToStart()
 
     def waitingToStart(self):
         self.running=False
@@ -88,6 +104,10 @@ class BoxesGame(ConnectionListener):
             self.marker = self.blueplayer
             self.othermarker = self.greenplayer
 
+    def HeartBeat(self):
+        connection.Pump()
+        self.Pump()
+
     def update(self):
         if (self.myScore + self.otherScore == TOTAL_SQUARE):
             self.pWin = True if self.myScore > self.otherScore else False
@@ -95,8 +115,7 @@ class BoxesGame(ConnectionListener):
         self.justPlaced -= 1
 
         # ---
-        connection.Pump()
-        self.Pump()
+        self.HeartBeat()
 
         # ---
         self.clock.tick(60)
@@ -132,6 +151,7 @@ class BoxesGame(ConnectionListener):
         self.winningscreen = pygame.image.load(IMAGE_PATH + "youwin.png")
         self.gameover = pygame.image.load(IMAGE_PATH + "gameover.png")
         self.score_panel = pygame.image.load(IMAGE_PATH + "score_panel.png")
+        self.score_panel = pygame.transform.scale(self.score_panel, (WIDTH, HUD_HEIGHT))
 
     def initSound(self):
         pygame.mixer.music.load(MEDIA_PATH + "music.wav")
@@ -141,21 +161,21 @@ class BoxesGame(ConnectionListener):
         pygame.mixer.music.play()
 
     def drawBoard(self):
-        for y in range(6):
-            for x in range(6):
+        for y in range(EDGE_LENGTH):
+            for x in range(SIDE_LENGTH):
                 if not self.boardH[y][x]:
-                    self.screen.blit(self.normallineH, [x * PART_LENGTH + 5, y * PART_LENGTH])
+                    self.screen.blit(self.normallineH, [x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH])
                 else:
-                    self.screen.blit(self.bar_doneH, [x * PART_LENGTH + 5, y * PART_LENGTH])
-        for y in range(6):
-            for x in range(7):
+                    self.screen.blit(self.bar_doneH, [x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH])
+        for y in range(SIDE_LENGTH):
+            for x in range(EDGE_LENGTH):
                 if not self.boardV[y][x]:
-                    self.screen.blit(self.normalLiveV, [x * PART_LENGTH, y * PART_LENGTH + 5])
+                    self.screen.blit(self.normalLiveV, [x * PART_LENGTH, y * PART_LENGTH + GAP_SIZE])
                 else:
-                    self.screen.blit(self.bar_doneV, [x * PART_LENGTH, y * PART_LENGTH + 5])
+                    self.screen.blit(self.bar_doneV, [x * PART_LENGTH, y * PART_LENGTH + GAP_SIZE])
         #draw separators
-        for x in range(7):
-            for y in range(7):
+        for x in range(EDGE_LENGTH):
+            for y in range(EDGE_LENGTH):
                 self.screen.blit(self.separators, [x * PART_LENGTH, y * PART_LENGTH])
 
     def flowLines(self):
@@ -172,7 +192,7 @@ class BoxesGame(ConnectionListener):
         isOutOfBounds = False
 
         try:
-            if not board[ypos][xpos]: self.screen.blit(self.hoverlineH if is_horizontal else self.hoverlineV, [xpos * PART_LENGTH + 5 if is_horizontal else xpos * PART_LENGTH, ypos * PART_LENGTH if is_horizontal else ypos * PART_LENGTH + 5])
+            if not board[ypos][xpos]: self.screen.blit(self.hoverlineH if is_horizontal else self.hoverlineV, [xpos * PART_LENGTH + GAP_SIZE if is_horizontal else xpos * PART_LENGTH, ypos * PART_LENGTH if is_horizontal else ypos * PART_LENGTH + GAP_SIZE])
         except:
             isOutOfBounds = True
             pass
@@ -191,13 +211,13 @@ class BoxesGame(ConnectionListener):
                 self.Send({"action": "place", "x":xpos, "y":ypos, "is_horizontal": is_horizontal, "gameID": self.gameID, "num": self.num})
 
     def drawHUD(self):
-        self.screen.blit(self.score_panel, [0, 389])
+        self.screen.blit(self.score_panel, [0, BOARD_LENGTH])
 
         # label
         myFont = pygame.font.SysFont(None, 32)
         label = myFont.render("Your Turn:", 1, (255, 255, 255))
-        self.screen.blit(label, (10, 400))
-        self.screen.blit(self.greenindicator if self.turn else self.redindicator, (130, 395))
+        self.screen.blit(label, (10, BOARD_LENGTH + 15))
+        self.screen.blit(self.greenindicator if self.turn else self.redindicator, (INDICATOR_GAP, BOARD_LENGTH + 10))
 
         # score
         myFont64 = pygame.font.SysFont(None, 64)
@@ -205,22 +225,22 @@ class BoxesGame(ConnectionListener):
 
         myScore = myFont64.render(str(self.myScore), 1, (255, 255, 255))        
         otherScore = myFont64.render(str(self.otherScore), 1, (255, 255, 255))
-        scoreTextMe = myFont20.render("You", 1, (255, 255, 255))
+        scoreTextMe = myFont20.render("Your Point", 1, (255, 255, 255))
         scoreTextOther = myFont20.render("Other Player", 1, (255, 255, 255))
 
-        self.screen.blit(scoreTextMe, (10, 428))
-        self.screen.blit(myScore, (12, 443))
-        self.screen.blit(scoreTextOther, (300, 428))
-        self.screen.blit(otherScore, (300, 443))
+        self.screen.blit(scoreTextMe, (SCORE_TEXT_LEFT, HEIGHT - SCORE_TEXT_BOTTOM))
+        self.screen.blit(myScore, (SCORE_NUM_LEFT, HEIGHT - SCORE_NUM_BOTTOM))
+        self.screen.blit(scoreTextOther, (BOARD_LENGTH - SCORE_TEXT_RIGHT, HEIGHT - SCORE_TEXT_BOTTOM))
+        self.screen.blit(otherScore, (BOARD_LENGTH - SCORE_TEXT_RIGHT, HEIGHT - SCORE_NUM_BOTTOM))
 
     def drawOwnerMap(self):
-        for x in range(6):
-            for y in range(6):
+        for x in range(SIDE_LENGTH):
+            for y in range(SIDE_LENGTH):
                 if self.owner[x][y] != 0:
                     if self.owner[x][y] == "win":
-                        self.screen.blit(self.marker, (x * PART_LENGTH + 5, y * PART_LENGTH + 5))
+                        self.screen.blit(self.marker, (x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH + GAP_SIZE))
                     if self.owner[x][y] == "lose":
-                        self.screen.blit(self.othermarker, (x * PART_LENGTH + 5, y * PART_LENGTH + 5))
+                        self.screen.blit(self.othermarker, (x * PART_LENGTH + GAP_SIZE, y * PART_LENGTH + GAP_SIZE))
 
     def Network_startGame(self, data):
         self.running = True
