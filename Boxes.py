@@ -12,6 +12,11 @@ import PodSixNet
 IMAGE_PATH = "Resource/Image/"
 MEDIA_PATH = "Resource/Media/"
 SIDE_LENGTH = 6
+EDGE_LENGTH = SIDE_LENGTH + 1
+STICK_LENGTH = 59
+GAP_SIZE = 5
+PART_LENGTH = STICK_LENGTH + GAP_SIZE
+
 TOTAL_SQUARE = SIDE_LENGTH * SIDE_LENGTH
 
 class BoxesGame(ConnectionListener):
@@ -50,7 +55,20 @@ class BoxesGame(ConnectionListener):
         self.owner = [[0 for x in range(6)] for y in range(6)]
 
         # ---
-        self.Connect()
+        # self.Connect()
+        address=raw_input("Address of Server: ")
+        try:
+            if not address:
+                host, port="localhost", 8000
+            else:
+                host,port=address.split(":")
+            self.Connect((host, int(port)))
+        except:
+            print "Error Connecting to Server"
+            print "Usage:", "host:port"
+            print "e.g.", "localhost:31425"
+            exit()
+        print "Boxes client started"
         # self.finished();
         self.waitingToStart()
 
@@ -71,7 +89,6 @@ class BoxesGame(ConnectionListener):
             self.othermarker = self.greenplayer
 
     def update(self):
-        # self.myScore += 1
         if (self.myScore + self.otherScore == TOTAL_SQUARE):
             self.pWin = True if self.myScore > self.otherScore else False
             return 1
@@ -124,38 +141,38 @@ class BoxesGame(ConnectionListener):
         pygame.mixer.music.play()
 
     def drawBoard(self):
-        for y in range(7):
+        for y in range(6):
             for x in range(6):
                 if not self.boardH[y][x]:
-                    self.screen.blit(self.normallineH, [x * 64 + 5, y * 64])
+                    self.screen.blit(self.normallineH, [x * PART_LENGTH + 5, y * PART_LENGTH])
                 else:
-                    self.screen.blit(self.bar_doneH, [x * 64 + 5, y * 64])
+                    self.screen.blit(self.bar_doneH, [x * PART_LENGTH + 5, y * PART_LENGTH])
         for y in range(6):
             for x in range(7):
                 if not self.boardV[y][x]:
-                    self.screen.blit(self.normalLiveV, [x * 64, y * 64 + 5])
+                    self.screen.blit(self.normalLiveV, [x * PART_LENGTH, y * PART_LENGTH + 5])
                 else:
-                    self.screen.blit(self.bar_doneV, [x * 64, y * 64 + 5])
+                    self.screen.blit(self.bar_doneV, [x * PART_LENGTH, y * PART_LENGTH + 5])
         #draw separators
         for x in range(7):
             for y in range(7):
-                self.screen.blit(self.separators, [x * 64, y * 64])
+                self.screen.blit(self.separators, [x * PART_LENGTH, y * PART_LENGTH])
 
     def flowLines(self):
         mouse = pygame.mouse.get_pos()
-        xpos = int(math.ceil( (mouse[0] - 32) / 64.0) )
-        ypos = int(math.ceil( (mouse[1] - 32) / 64.0) )
+        xpos = int(math.ceil( (mouse[0] - 32) / float(PART_LENGTH)) )
+        ypos = int(math.ceil( (mouse[1] - 32) / float(PART_LENGTH)) )
 
-        is_horizontal = abs(mouse[1] - ypos * 64) < abs(mouse[0] - xpos * 64)
+        is_horizontal = abs(mouse[1] - ypos * PART_LENGTH) < abs(mouse[0] - xpos * PART_LENGTH)
 
-        ypos = ypos - 1 if mouse[1] - ypos * 64 < 0 and not is_horizontal else ypos
-        xpos = xpos - 1 if mouse[0] - xpos * 64 < 0 and is_horizontal else xpos
+        ypos = ypos - 1 if mouse[1] - ypos * PART_LENGTH < 0 and not is_horizontal else ypos
+        xpos = xpos - 1 if mouse[0] - xpos * PART_LENGTH < 0 and is_horizontal else xpos
 
         board = self.boardH if is_horizontal else self.boardV
         isOutOfBounds = False
 
         try:
-            if not board[ypos][xpos]: self.screen.blit(self.hoverlineH if is_horizontal else self.hoverlineV, [xpos * 64 + 5 if is_horizontal else xpos * 64, ypos * 64 if is_horizontal else ypos * 64 + 5])
+            if not board[ypos][xpos]: self.screen.blit(self.hoverlineH if is_horizontal else self.hoverlineV, [xpos * PART_LENGTH + 5 if is_horizontal else xpos * PART_LENGTH, ypos * PART_LENGTH if is_horizontal else ypos * PART_LENGTH + 5])
         except:
             isOutOfBounds = True
             pass
@@ -201,9 +218,9 @@ class BoxesGame(ConnectionListener):
             for y in range(6):
                 if self.owner[x][y] != 0:
                     if self.owner[x][y] == "win":
-                        self.screen.blit(self.marker, (x * 64 + 5, y * 64 + 5))
+                        self.screen.blit(self.marker, (x * PART_LENGTH + 5, y * PART_LENGTH + 5))
                     if self.owner[x][y] == "lose":
-                        self.screen.blit(self.othermarker, (x * 64 + 5, y * 64 + 5))
+                        self.screen.blit(self.othermarker, (x * PART_LENGTH + 5, y * PART_LENGTH + 5))
 
     def Network_startGame(self, data):
         self.running = True

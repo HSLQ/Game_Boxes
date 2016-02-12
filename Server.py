@@ -131,7 +131,15 @@ class Game():
 
  
 print ("STARTING SERVER ON LOCALHOST")
-boxesServe = BoxesServer()
+# boxesServe = BoxesServer()
+# try:
+address=raw_input("Host:Port (localhost:8000): ")
+if not address:
+    host, port="localhost", 8000
+else:
+    host,port=address.split(":")
+boxesServe = BoxesServer(localaddr=(host, int(port)))
+
 while True:
     boxesServe.tick()
     sleep(0.01)
