@@ -101,8 +101,6 @@ class Board:
         else:
             alreadyPlaced = False
 
-
-
     def draw(self, screen):
         # screen.set_clip(self.x, self.y, self.width, self.height)
         self.background.draw(screen)

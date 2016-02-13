@@ -28,7 +28,7 @@ class TextButton(CenteredText):
 
     def click(self, foo):
         if pygame.mouse.get_pressed()[0]:
-            if rect.collidepoint(mouse.get_pos()):
+            if self.rect.collidepoint(pygame.mouse.get_pos()):
                 return foo()
 
     def draw(self, screen):
@@ -36,4 +36,5 @@ class TextButton(CenteredText):
             self.screen.blit(self.headFlag, [self.drawX - 10, self.drawY])
 
         super(TextButton, self).draw(screen)
+        # 在按钮周围绘制边框
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)

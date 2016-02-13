@@ -3,7 +3,7 @@
 
 __author__ = 'Piratf'
 
-from settings import GAME, BOARD
+from settings import GAME, BOARD, STATE
 from textButton import TextButton
 from centeredImage import CenteredImage
 from background import Background
@@ -49,3 +49,8 @@ class Game:
         self.board.draw(self.screen)
         self.hud.draw(self.screen)
         self.returnButton.draw(self.screen)
+        var = self.returnButton.click(lambda : STATE.menu)
+        if STATE.menu == var:
+            return STATE.menu
+        else:
+            return STATE.game

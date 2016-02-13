@@ -65,7 +65,9 @@ class Main():
                 raise TypeError, var
 
         elif STATE.game == self.state:
-            self.game.draw()
+            self.state = self.game.draw()
+            if (self.state != STATE.game):
+                self.initContext()
 
         elif STATE.menu == self.state:
             self.menu.draw(self.screen)
