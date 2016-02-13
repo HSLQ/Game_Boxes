@@ -3,7 +3,7 @@
 
 __author__ = 'Piratf'
 
-from settings import GAME
+from settings import GAME, BOARD
 from textButton import TextButton
 from centeredImage import CenteredImage
 from background import Background
@@ -26,19 +26,17 @@ class Game:
         backgroundColor = GAME["GAME_BACKGROUND_COLOR"]
         self.background.setColor(backgroundColor)
         # 返回按钮
-        self.returnButton = CenteredImage(GAME["RETURN_BUTTON_CONTENT"], GAME["RETURN_BUTTON_POSITION"], GAME["RETURN_BUTTON_SIZE"])
-
+        # self.returnButton = CenteredImage(GAME["RETURN_BUTTON_CONTENT"], GAME["RETURN_BUTTON_POSITION"], GAME["RETURN_BUTTON_SIZE"])
+        self.returnButton = TextButton(GAME["RETURN_BUTTON_FONTS"], GAME["RETURN_BUTTON_CONTENT"], (30, 30))
 
     def initAttr(self, level):
         self.level = level
-        # 根据游戏等级建立棋盘
         self.edgeWidth = GAME["EDGE_WIDTH"]
-        self.board = Board(level, (self.edgeWidth, 0))
-        self.width = self.board.width + self.edgeWidth * 2
-        # 有了宽度就可以适应出 HUD
-        self.hud = Hud(self.width, self.board.height)
-        # 有了 board 和 hud 高度，就可以适应出高度
-        self.height = self.board.height + self.hud.height
+        self.height = BOARD["BOARD_HEIGHT"] + self.edgeWidth * 2
+        self.hud = Hud((0, self.height), (0, 0))
+        # 根据游戏等级建立棋盘
+        self.board = Board(level, (self.hud.width, self.edgeWidth))
+        self.width = self.board.width + self.hud.width
 
     def initContext(self):
         self.screen = pygame.display.set_mode((self.width, self.height), NOFRAME)

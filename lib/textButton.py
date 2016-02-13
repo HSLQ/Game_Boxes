@@ -26,6 +26,11 @@ class TextButton(CenteredText):
         self.color = color
         self.renderedText = self.font.render(self.content, True, color)
 
+    def click(self, foo):
+        if pygame.mouse.get_pressed()[0]:
+            if rect.collidepoint(mouse.get_pos()):
+                return foo()
+
     def draw(self, screen):
         if (hasattr(self, "headFlag")):
             self.screen.blit(self.headFlag, [self.drawX - 10, self.drawY])

@@ -12,11 +12,14 @@ WINDOW_HEIGHT = 600
 
 # 字体
 pygame.font.init()
-FONT_CINDY_AFTERNOON = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
+FONT_CINDY_AFTERNOON25 = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
+FONT_SYS_NONE = pygame.font.SysFont("simhei", 25)
+FONT_CHILD30 = pygame.font.Font(getFilePath("Child.ttf"), 30)
+FONT_CHILD20 = pygame.font.Font(getFilePath("Child.ttf"), 20)
 
 # 主菜单
 MENU_TEXTS = [u"发起新游戏", u"匹配", u"游戏规则", u"退出"]
-MENU_FONTS = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
+MENU_FONTS = FONT_CINDY_AFTERNOON25
 
 # set 实现的 枚举类型
 class Enum(set):
@@ -36,19 +39,19 @@ u"圈成完整格子的玩家即占领该格子并得分",
 u"得分玩家可以再进行一个回合", 
 u"返回"]
 RULES_CONTENT_FONTS = pygame.font.SysFont("yaheiconsolashybrid", 18)
-RULES_EXIT_FONTS = MENU_FONTS
+RULES_EXIT_FONTS = FONT_CINDY_AFTERNOON25
 # RULES_EXIT_FONTS = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
 
 # 设置等级 set level
 SETLEVEL = {
     "TITLE_CONTENT" : u"游戏设置",
-    "TITLE_FONTS" : MENU_FONTS,
+    "TITLE_FONTS" : FONT_CINDY_AFTERNOON25,
     
     "EXIT_CONTENT" : u"返回", 
-    "EXIT_FONTS" : MENU_FONTS, 
+    "EXIT_FONTS" : FONT_CINDY_AFTERNOON25, 
     
     "BEGIN_CONTENT" : u"开始", 
-    "BEGIN_FONTS" : MENU_FONTS,
+    "BEGIN_FONTS" : FONT_CINDY_AFTERNOON25,
     
     "DEFAULT_LEVEL" : 6,
     "MAX_LEVEL" : 9,
@@ -61,15 +64,20 @@ SETLEVEL = {
 
 # 主游戏 game frame
 GAME = {
-    "EDGE_WIDTH": 80,
-    "GAME_BACKGROUND_COLOR": (0, 190, 60),
-    "RETURN_BUTTON_CONTENT": pygame.transform.flip(pygame.image.load(getFilePath("return.png")), True, False),
-    "RETURN_BUTTON_POSITION": (30, 30),
-    "RETURN_BUTTON_SIZE": (40, 40)
+    "EDGE_WIDTH": 40,
+    "GAME_BACKGROUND_COLOR": (112, 242, 181),
+    # "RETURN_BUTTON_CONTENT": pygame.transform.flip(pygame.image.load(getFilePath("return.png")), True, False),
+    "RETURN_BUTTON_FONTS": FONT_CINDY_AFTERNOON25,
+    "RETURN_BUTTON_CONTENT": u"逃跑",
+    "RETURN_BUTTON_OFFSET_LEFT": 30,
+    "RETURN_BUTTON_SIZE": (40, 40),
+
 }
 
 # 棋盘 board
 BOARD = {
+    "BOARD_WIDTH": 64 * 7 + 5,
+    "BOARD_HEIGHT": 64 * 7 + 5,
     "STICK_LENGTH": 59,
     "SEPARATOR_LENGTH": 5,
     "STICK_NOR_IMAGE": pygame.image.load(getFilePath("normalline.png")),
@@ -80,5 +88,31 @@ BOARD = {
 # HUD
 HUD = {
     "HUD_HEIGHT": 180,
-    "HUD_BACKGROUND_IMAGE": pygame.image.load(getFilePath("panel.png"))
+    "HUD_WIDTH": 140,
+    "HUD_BACKGROUND_IMAGE": pygame.image.load(getFilePath("panel_V.png")),
+
+    "LAMP_WIDTH": 35,
+    "LAMP_HEIGHT": 37,
+    "GREEN_PILOT_LAMP": pygame.image.load(getFilePath("greenindicator.png")),
+    "RED_PILOT_LAMP": pygame.image.load(getFilePath("redindicator.png")),
+
+    "MARK_TEXT_FONTS": FONT_CHILD30,
+    "MARK_TEXT_CONTENT": u"行动",
+
+    "SCORE_TEXT_FONTS": FONT_CHILD30,
+
+    "LABEL_FONTS": FONT_CHILD20,
+    "MY_SCORE_LABEL_CONTENT": u"我的分数",
+    "MY_SCORE_LABEL_OFFSET_TOP": 70,
+    "MY_SCORE_LABEL_OFFSET_LEFT": 10,
+    "OTHER_SCORE_LABEL_CONTENT": u"对手分数",
+    "OTHER_SCORE_LABEL_OFFSET_BOTTOM": 67,
+    "OTHER_SCORE_LABEL_OFFSET_LEFT": 10,
+
+    "MY_SCORE_TEXT_OFFSET_TOP": 100,
+    "MY_SCORE_TEXT_OFFSET_LEFT": 10,
+
+    "OTHER_SCORE_TEXT_OFFSET_BOTTOM": 30,
+    "OTHER_SCORE_TEXT_OFFSET_LEFT": 10,
+
 }

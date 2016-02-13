@@ -72,7 +72,6 @@ class SetLevel:
 
         self.beginButton.draw(screen)
         self.returnButton.draw(screen)
-        pygame.display.flip()
 
     def clickListener(self):
         if (pygame.mouse.get_pressed()[0]):
