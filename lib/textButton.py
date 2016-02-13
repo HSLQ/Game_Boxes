@@ -20,15 +20,15 @@ class TextButton(CenteredText):
     def setHeadFlag(self, imagePath):
         self.headFlag = pygame.image.load(getFilePath("separators.png"))
 
+    def setTextColor(self, color):
+        if not color:
+            return
+        self.color = color
+        self.renderedText = self.font.render(self.content, True, color)
+
     def draw(self, screen):
         if (hasattr(self, "headFlag")):
             self.screen.blit(self.headFlag, [self.drawX - 10, self.drawY])
 
         super(TextButton, self).draw(screen)
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
-
-    def setTextColor(self, color):
-        if not color:
-            return
-        self.color = color
-        self.renderedText = self.font.render(self.content, True, color)

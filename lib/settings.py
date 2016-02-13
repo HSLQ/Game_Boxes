@@ -10,8 +10,11 @@ UNDEFINED = -1
 WINDOW_WIDTH = 400
 WINDOW_HEIGHT = 600
 
-# 主菜单
+# 字体
 pygame.font.init()
+FONT_CINDY_AFTERNOON = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
+
+# 主菜单
 MENU_TEXTS = [u"发起新游戏", u"匹配", u"游戏规则", u"退出"]
 MENU_FONTS = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
 
@@ -59,8 +62,10 @@ SETLEVEL = {
 # 主游戏 game frame
 GAME = {
     "EDGE_WIDTH": 80,
-    "GAME_BACKGROUND_COLOR": (0, 190, 60)
-
+    "GAME_BACKGROUND_COLOR": (0, 190, 60),
+    "RETURN_BUTTON_CONTENT": pygame.transform.flip(pygame.image.load(getFilePath("return.png")), True, False),
+    "RETURN_BUTTON_POSITION": (30, 30),
+    "RETURN_BUTTON_SIZE": (40, 40)
 }
 
 # 棋盘 board

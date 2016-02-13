@@ -34,5 +34,5 @@ class CenteredImage():
 
     # Draw Method
     def draw(self, screen):
-        pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
+        # pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
         screen.blit(self.imageObj, (self.drawX, self.drawY))

@@ -27,5 +27,5 @@ class Board:
         self.background = Background(self.width, self.height, *(posX, posY))
 
     def draw(self, screen):
-        screen.set_clip(self.x, self.y, self.width, self.height)
+        # screen.set_clip(self.x, self.y, self.width, self.height)
         self.background.draw(screen)
