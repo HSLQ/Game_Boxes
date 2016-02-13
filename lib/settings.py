@@ -24,7 +24,7 @@ class Enum(set):
 
 STATE = Enum(['menu', 'game', 'setLevel', 'rules', 'matching', 'exit'])
 
-# 游戏规则
+# 游戏规则 rules
 RULES_CONTENT = [
 u"两人轮流采取行动", 
 u"绿灯行动，红灯等待对方行动",
@@ -36,28 +36,34 @@ RULES_CONTENT_FONTS = pygame.font.SysFont("yaheiconsolashybrid", 18)
 RULES_EXIT_FONTS = MENU_FONTS
 # RULES_EXIT_FONTS = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
 
-# 设置等级
-
+# 设置等级 set level
 SETLEVEL = {
-"TITLE_CONTENT" : u"游戏设置",
-"TITLE_FONTS" : MENU_FONTS,
-
-"EXIT_CONTENT" : u"返回", 
-"EXIT_FONTS" : MENU_FONTS, 
-
-"BEGIN_CONTENT" : u"开始", 
-"BEGIN_FONTS" : MENU_FONTS,
-
-"DEFAULT_LEVEL" : 6,
-"MAX_LEVEL" : 9,
-"MIN_LEVEL" : 5,
-"LEVEL_FONTS" : pygame.font.Font(getFilePath("Mf_Kings_Queens.ttf"), 80),
-"ARROW_SIZE" : 60,
-
-"JUST_CLICKED" : 3
+    "TITLE_CONTENT" : u"游戏设置",
+    "TITLE_FONTS" : MENU_FONTS,
+    
+    "EXIT_CONTENT" : u"返回", 
+    "EXIT_FONTS" : MENU_FONTS, 
+    
+    "BEGIN_CONTENT" : u"开始", 
+    "BEGIN_FONTS" : MENU_FONTS,
+    
+    "DEFAULT_LEVEL" : 6,
+    "MAX_LEVEL" : 9,
+    "MIN_LEVEL" : 5,
+    "LEVEL_FONTS" : pygame.font.Font(getFilePath("Mf_Kings_Queens.ttf"), 80),
+    "ARROW_SIZE" : 60,
+    
+    "JUST_CLICKED" : 3
 }
 
-# 棋盘
+# 主游戏 game frame
+GAME = {
+    "EDGE_WIDTH": 80,
+    "GAME_BACKGROUND_COLOR": (0, 190, 60)
+
+}
+
+# 棋盘 board
 BOARD = {
     "STICK_LENGTH": 59,
     "SEPARATOR_LENGTH": 5,
@@ -68,6 +74,6 @@ BOARD = {
         
 # HUD
 HUD = {
-    "HUD_HEIGHT": 110,
+    "HUD_HEIGHT": 180,
     "HUD_BACKGROUND_IMAGE": pygame.image.load(getFilePath("panel.png"))
 }

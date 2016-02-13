@@ -9,6 +9,7 @@ from background import Background
 from textButton import TextButton
 from centeredText import CenteredText
 from centeredImage import CenteredImage
+from game import Game
 import pygame
 
 class SetLevel:
@@ -77,16 +78,13 @@ class SetLevel:
         if (pygame.mouse.get_pressed()[0]):
             mousePos = pygame.mouse.get_pos()
             if self.beginButton.rect.collidepoint(mousePos):
-                return STATE.game
+                return Game(self.level)
             elif self.returnButton.rect.collidepoint(mousePos):
                 return STATE.menu
-            else:
-                if self.rArrow.rect.collidepoint(mousePos) and 0 == self.justClicked:
-                    self.setLevel(self.level + 1)
-                elif self.lArrow.rect.collidepoint(mousePos) and 0 == self.justClicked:
-                    self.setLevel(self.level - 1)
-                self.justClicked = SETLEVEL["JUST_CLICKED"]
-                return self.level
+            elif self.rArrow.rect.collidepoint(mousePos) and 0 == self.justClicked:
+                self.setLevel(self.level + 1)
+            elif self.lArrow.rect.collidepoint(mousePos) and 0 == self.justClicked:
+                self.setLevel(self.level - 1)
             self.justClicked = SETLEVEL["JUST_CLICKED"]
         return STATE.setLevel
 

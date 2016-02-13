@@ -10,6 +10,7 @@ from settings import SETLEVEL
 from rules import Rules
 from game import Game
 import pygame
+from pygame.locals import *
 
 class Main():
     """main loop of the game"""
@@ -27,13 +28,13 @@ class Main():
         self.menu = Menu(self.width, self.height)
         self.rules = Rules(self.width, self.height)
         self.setLevel = SetLevel(self.width, self.height)
-        self.game = Game(self.level)
+        # self.game = Game(self.level)
 
     def loadResouce(self):
         pass
 
     def initContext(self):
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode((self.width, self.height), NOFRAME)
         pygame.display.set_caption("Boxes")
 
         self.clock = pygame.time.Clock();
@@ -57,10 +58,9 @@ class Main():
             var = self.setLevel.clickListener()
             if isinstance(var, str):
                 self.state = var
-            elif isinstance(var, int):
-                self.level = var
-                if self.game.level != self.level:
-                    self.game = Game(self.level)
+            elif isinstance(var, Game):
+                self.game = var
+                self.state = STATE.game
             else:
                 raise TypeError, var
 
@@ -82,6 +82,7 @@ class Main():
                 if (event.key == pygame.K_ESCAPE):
                     exit()
                     pygame.quit()
+        pygame.display.flip()
 
     def run(self):
         while self.running:

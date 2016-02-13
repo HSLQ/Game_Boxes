@@ -25,14 +25,25 @@ import pygame
 
 class Background:
     """draw background"""
-    def __init__(self, width, height):
+    def __init__(self, width, height, *pos):
         # super(Background, self).__init__()
-        self.initAttr(width, height)
+        if () == pos:
+            print 111
+            pos = (0, 0)
+        self.initAttr(width, height, pos)
 
-    def initAttr(self, width, height):
+    def initAttr(self, width, height, pos):
         self.width, self.height = width, height
-        # 纯色背景
+        print pos
+        self.x, self.y = pos[0], pos[1]
         self.panel = pygame.Surface((self.width, self.height), depth=32)
 
-    def draw(self, screen, (x, y) = (0, 0)):
-        screen.blit(self.panel, (x, y))
+    def setColor(self, color):
+        if isinstance(color, pygame.Surface):
+            self.panel = color
+        else:
+            self.panel.fill(color)
+
+
+    def draw(self, screen):
+        screen.blit(self.panel, (self.x, self.y))
