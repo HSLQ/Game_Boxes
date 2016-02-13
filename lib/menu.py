@@ -5,7 +5,7 @@ __author__ = 'Piratf'
 
 from textButton import TextButton
 from util import getFilePath 
-from settings import MENU_TEXTS, MENU_FONTS
+from settings import MENU_TEXTS, MENU_FONTS, STATE
 import pygame
 from pygame.locals import *
 
@@ -41,9 +41,14 @@ class Menu(object):
                 if button.rect.collidepoint(mousePos):
                     if MENU_TEXTS[0] == button.content:
                         print "start new game"
+                        return STATE.setLevel
                     elif MENU_TEXTS[1] == button.content:
                         print "matching"
+                        return STATE.matching
                     elif MENU_TEXTS[2] == button.content:
                         print "rules"
+                        return STATE.rules
                     elif MENU_TEXTS[3] == button.content:
                         print "exit"
+                        return STATE.exit
+        return STATE.menu

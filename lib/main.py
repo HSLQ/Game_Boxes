@@ -3,18 +3,13 @@
 
 __author__ = 'Piratf'
 
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT
+from settings import WINDOW_WIDTH, WINDOW_HEIGHT, STATE, Enum
+from menu import Menu
+from setLevel import SetLevel
+from settings import SETLEVEL
+from rules import Rules
+from game import Game
 import pygame
-from menu import Menu 
-
-# set 实现的 枚举类型
-class Enum(set):
-    def __getattr__(self, name):
-        if name in self:
-            return name
-        raise AttributeError
-
-STATE = Enum(['menu', 'game', 'setLevel', 'rules', 'matching'])
 
 class Main():
     """main loop of the game"""
@@ -30,6 +25,9 @@ class Main():
     def initObj(self):
         # 设置大小，用于背景图片的缩放
         self.menu = Menu(self.width, self.height)
+        self.rules = Rules(self.width, self.height)
+        self.setLevel = SetLevel(self.width, self.height)
+        self.game = Game(self.level)
 
     def loadResouce(self):
         pass
@@ -44,14 +42,39 @@ class Main():
         self.width, self.height = WINDOW_WIDTH, WINDOW_HEIGHT
         self.state = STATE.menu
         self.running = True
+        self.level = SETLEVEL["DEFAULT_LEVEL"]
 
     def update(self):
         self.clock.tick(60)
         self.screen.fill(0)
 
-        if STATE.menu == self.state:
+        if STATE.exit == self.state:
+            exit()
+
+        elif STATE.setLevel == self.state:
+            self.setLevel.draw(self.screen)
+
+            var = self.setLevel.clickListener()
+            if isinstance(var, str):
+                self.state = var
+            elif isinstance(var, int):
+                self.level = var
+                if self.game.level != self.level:
+                    self.game = Game(self.level)
+            else:
+                raise TypeError, var
+
+        elif STATE.game == self.state:
+            self.game.draw()
+
+        elif STATE.menu == self.state:
             self.menu.draw(self.screen)
-            self.menu.clickListener()
+            self.state = self.menu.clickListener()
+
+        elif STATE.rules == self.state:
+            self.rules.draw(self.screen)
+            self.state = self.rules.clickListener()
+
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 exit()

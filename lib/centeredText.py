@@ -14,7 +14,7 @@ class CenteredText(Text):
         super(CenteredText, self).__init__(font, text, (x, y), color)
         # Start PyGame Font
         # font = pygame.font.SysFont("Yahei Consolas Hybrid", 20)
-        self.size = self.font.size(text)
+        self.size = self.font.size(text) #(width, height)
         self.drawX = self.x - (self.size[0] / 2.)
         self.drawY = self.y - (self.size[1] / 2.)
 

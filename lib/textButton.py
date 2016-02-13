@@ -2,6 +2,8 @@
 # Filename: button.py
 
 __author__ = 'Piratf'
+
+from util import getFilePath
 from pygame.locals import *
 import pygame
 
@@ -15,7 +17,13 @@ class TextButton(CenteredText):
         padding = 5
         self.rect = Rect(self.drawX - padding, self.drawY - padding, self.size[0] + padding * 2, self.size[1] + padding * 2)
 
+    def setHeadFlag(self, imagePath):
+        self.headFlag = pygame.image.load(getFilePath("separators.png"))
+
     def draw(self, screen):
+        if (hasattr(self, "headFlag")):
+            self.screen.blit(self.headFlag, [self.drawX - 10, self.drawY])
+
         super(TextButton, self).draw(screen)
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
 
