@@ -82,7 +82,12 @@ BOARD = {
     "SEPARATOR_LENGTH": 5,
     "STICK_NOR_IMAGE": pygame.image.load(getFilePath("normalline.png")),
     "STICK_DONE_IMAGE": pygame.image.load(getFilePath("bar_done.png")),
-    "SEPARATOR_IMAGE": pygame.image.load(getFilePath("separators.png"))
+    "SEPARATOR_IMAGE": pygame.image.load(getFilePath("separators.png")),
+
+    "GREEN_SQUARE": pygame.image.load(getFilePath("greenplayer.png")),
+    "YELLOW_SQUARE": pygame.image.load(getFilePath("yellowplayer.png")),
+
+    "JUST_PLACED": 10
 }
         
 # HUD

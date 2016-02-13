@@ -15,3 +15,35 @@ menu:
     匹配
     游戏规则
     退出
+
+每次点击，发送数据
+Send({
+"action": "place", 
+"x":widthPos, 
+"y":heightPos, 
+"is_horizontal": is_horizontal, 
+"gameID": self.gameID, 
+"num": self.num,
+"w": None
+})
+
+如果 w 为坐标，表示当前点击后客户端判断得到了一个格子，
+
+玩家点击，发送数据给服务器
+服务器响应，同步数据给两个玩家
+两个玩家客户端接收到数据，判断得失分，发送给服务器
+
+判断点击的边的 两侧方块 即可
+
+Send({
+    "action": "getPoint"
+    "x": widthPos,
+    "y": heightPos,
+    "gameID": self.gameID
+    "order": self.order
+})
+
+服务器维护两个得分队列
+服务端拿到一个客户端发来的结果后，和另一个客户端的得分队列比较
+如果找到，从队列中删除，服务端记分，同步给两个客户端
+如果没找到，插入队列，等待对方同步

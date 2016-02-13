@@ -28,13 +28,11 @@ class Background:
     def __init__(self, width, height, *pos):
         # super(Background, self).__init__()
         if () == pos:
-            print 111
             pos = (0, 0)
         self.initAttr(width, height, pos)
 
     def initAttr(self, width, height, pos):
         self.width, self.height = width, height
-        print pos
         self.x, self.y = pos[0], pos[1]
         self.panel = pygame.Surface((self.width, self.height), depth=32)
 
