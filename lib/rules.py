@@ -24,7 +24,7 @@ class Rules(object):
     def initAttr(self, width, height):
         self.width, self.height = width, height
         self.loadResource()
-        self.background = Background(width, height)
+        self.background = Background((width, height))
         # 规则文字开始的位置
         offLine = 100
         offSet = 50

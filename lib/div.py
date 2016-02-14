@@ -3,7 +3,9 @@
 
 __author__ = 'Piratf'
 
-class Div:
+from background import Background
+
+class Div(object):
     """small panel in the frame"""
     def __init__(self, (width, height), (x, y)):
         # super(Div, self).__init__()
@@ -17,8 +19,8 @@ class Div:
         self.y = y;
         
     def initElem(self):
-        self.background = Background(self.width, self.height, self.x, self,y)
-        self.background.setColor(255, 255, 255)
+        self.background = Background((self.width, self.height), (self.x, self.y))
+        self.background.setColor((255, 255, 255))
 
     def draw(screen):
         self.background.draw(screen)

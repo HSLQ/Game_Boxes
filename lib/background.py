@@ -23,17 +23,17 @@ import pygame
 
 #     return Background
 
-class Background:
+class Background(object):
     """draw background"""
-    def __init__(self, width, height, *pos):
+    def __init__(self, (width, height), (x, y) = (0, 0)):
         # super(Background, self).__init__()
-        if () == pos:
-            pos = (0, 0)
-        self.initAttr(width, height, pos)
+        self.initAttr((width, height), (x, y))
 
-    def initAttr(self, width, height, pos):
-        self.width, self.height = width, height
-        self.x, self.y = pos[0], pos[1]
+    def initAttr(self, (width, height), (x, y)):
+        self.width = width
+        self.height = height
+        self.x = x
+        self.y = y
         self.panel = pygame.Surface((self.width, self.height), depth=32)
 
     def setColor(self, color):

@@ -12,7 +12,7 @@ from centeredImage import CenteredImage
 from game import Game
 import pygame
 
-class SetLevel:
+class SetLevel(object):
     """set level frame"""
     def __init__(self, width, height):
         # super(SetLevel, self).__init__()
@@ -26,7 +26,7 @@ class SetLevel:
         self.setArrow()
         self.setLevel()
 
-        self.background = Background(width, height)
+        self.background = Background((width, height))
 
         titleOffTop = 150
 

@@ -9,7 +9,7 @@ from text import Text
 
 # 以传入位置为中心位置 进行显示 的图片对象
 # 内部包裹的是 pygame.image 对象
-class CenteredImage():
+class CenteredImage(object):
     '''Centered Image Class'''
     # Constructror
     def __init__(self, imagePath, (x, y), (width, height)):

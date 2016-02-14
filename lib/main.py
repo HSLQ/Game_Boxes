@@ -9,10 +9,11 @@ from setLevel import SetLevel
 from settings import SETLEVEL
 from rules import Rules
 from game import Game
+from matching import Matching
 import pygame
 from pygame.locals import *
 
-class Main():
+class Main(object):
     """main loop of the game"""
     def __init__(self):
         pygame.init()
@@ -28,6 +29,7 @@ class Main():
         self.menu = Menu(self.width, self.height)
         self.rules = Rules(self.width, self.height)
         self.setLevel = SetLevel(self.width, self.height)
+        self.matching = Matching((self.width, self.height))
         # self.game = Game(self.level)
 
     def loadResouce(self):
@@ -68,6 +70,9 @@ class Main():
             self.state = self.game.draw()
             if (self.state != STATE.game):
                 self.initContext()
+
+        elif STATE.matching == self.state:
+            self.state = self.matching.draw(self.screen)
 
         elif STATE.menu == self.state:
             self.menu.draw(self.screen)

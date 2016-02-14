@@ -9,7 +9,7 @@ from centeredImage import CenteredImage
 from centeredText import CenteredText
 import pygame
 
-class Hud:
+class Hud(object):
     """hud panel"""
     def __init__(self, (width, height), (x, y)):
         # super(Hud, self).__init__()
@@ -24,7 +24,7 @@ class Hud:
     def initElement(self):
         # 背景
         backgroundImg = pygame.transform.scale(HUD["HUD_BACKGROUND_IMAGE"], (self.width, self.height))
-        self.background = Background(self.width, self.height, self.x, self.y)
+        self.background = Background((self.width, self.height), (self.x, self.y))
         self.background.setColor(backgroundImg)
 
         # 回合指示

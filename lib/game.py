@@ -12,7 +12,7 @@ from board import Board
 import pygame
 from pygame.locals import *
 
-class Game:
+class Game(object):
     """main frame of the game"""
     def __init__(self, level):
         # super(game, self).__init__()
@@ -22,7 +22,7 @@ class Game:
 
     def initElement(self):
         # 背景
-        self.background = Background(self.width, self.height)
+        self.background = Background((self.width, self.height))
         backgroundColor = GAME["GAME_BACKGROUND_COLOR"]
         self.background.setColor(backgroundColor)
         # 返回按钮
@@ -50,7 +50,4 @@ class Game:
         self.hud.draw(self.screen)
         self.returnButton.draw(self.screen)
         var = self.returnButton.click(lambda : STATE.menu)
-        if STATE.menu == var:
-            return STATE.menu
-        else:
-            return STATE.game
+        return var if var else STATE.game

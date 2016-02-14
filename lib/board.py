@@ -8,7 +8,7 @@ from background import Background
 import pygame
 import math
 
-class Board:
+class Board(object):
     """board for playing"""
     def __init__(self, level, (posX, posY)):
         # super(Board, self).__init__()
@@ -34,7 +34,7 @@ class Board:
         self.marker = self.greenplayer
         self.othermarker = self.yellowplayer
 
-        self.background = Background(self.width, self.height, *(posX, posY))
+        self.background = Background((self.width, self.height), (posX, posY))
         self.squareSideLength = self.stickLength + self.separatorLength
         self.justPlaced = BOARD["JUST_PLACED"]
         self.turn = True
@@ -118,15 +118,24 @@ class Board:
 
         is_horizontal = abs(mousePos[1] - vPos * self.squareSideLength) < abs(mousePos[0] - hPos * self.squareSideLength)
 
-        vPos = vPos - 1 if mousePos[1] - vPos * self.squareSideLength < 0 and not is_horizontal else vPos
-        hPos = hPos - 1 if mousePos[0] - hPos * self.squareSideLength < 0 and is_horizontal else hPos
-
+        vPos = vPos - 1 if vPos > 0 and mousePos[1] - vPos * self.squareSideLength < 0 and not is_horizontal else vPos
+        hPos = hPos - 1 if vPos > 0 and mousePos[0] - hPos * self.squareSideLength < 0 and is_horizontal else hPos
 
         board = self.boardH if is_horizontal else self.boardV
         isOutOfBounds = False
         try:
-            if not board[vPos][hPos]: 
-                screen.blit(self.doneLineImageH if is_horizontal else self.doneLineImageV, [self.x + (hPos * self.squareSideLength + self.separatorLength if is_horizontal else hPos * self.squareSideLength), self.y + (vPos * self.squareSideLength if is_horizontal else vPos * self.squareSideLength + self.separatorLength)])
+            if vPos > 0 and hPos > 0 and not board[vPos][hPos]: 
+                screen.blit(self.doneLineImageH 
+                    if is_horizontal 
+                    else self.doneLineImageV, 
+                    (self.x + 
+                    (hPos * self.squareSideLength + self.separatorLength 
+                        if is_horizontal 
+                        else hPos * self.squareSideLength), 
+                    self.y + 
+                    (vPos * self.squareSideLength 
+                        if is_horizontal 
+                        else vPos * self.squareSideLength + self.separatorLength)))
         except:
             isOutOfBounds = True
             pass
