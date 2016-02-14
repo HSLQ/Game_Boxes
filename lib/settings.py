@@ -62,6 +62,22 @@ SETLEVEL = {
     "JUST_CLICKED" : 3
 }
 
+# 房间 div
+
+ROOM = {
+    "ROOM_ID_FONTS": FONT_CHILD20,
+    "ROOM_ID_LABEL_CONTENT": u"房间编号",
+    "ROOM_ID_OFFSET_LEFT": 10,
+    "ROOM_ID_OFFSET_TOP": 10,
+    "ROOM_LEVEL_FONTS": FONT_CHILD20,
+    "ROOM_LEVEL_CONTENT": u"等级:"
+}
+
+# 房间匹配
+MATCHING = {
+    "ROOMS_IN_ONE_PAGE": 4
+}
+
 # 主游戏 game frame
 GAME = {
     "EDGE_WIDTH": 40,
