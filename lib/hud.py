@@ -72,7 +72,7 @@ class Hud(object):
         [otherLabelOffSetLeft, otherLabelOffSetTop] = [var / 2 for var in HUD["LABEL_FONTS"].size(HUD["OTHER_SCORE_LABEL_CONTENT"])]
         self.otherScoreLabel = CenteredText(HUD["LABEL_FONTS"], 
             HUD["OTHER_SCORE_LABEL_CONTENT"], 
-            (myLabelOffSetLeft + HUD["OTHER_SCORE_LABEL_OFFSET_LEFT"], 
+            (otherLabelOffSetLeft + HUD["OTHER_SCORE_LABEL_OFFSET_LEFT"], 
                 self.height - otherLabelOffSetTop - HUD["OTHER_SCORE_LABEL_OFFSET_BOTTOM"]))
 
     def drawScore(self, screen):
@@ -82,6 +82,9 @@ class Hud(object):
 
         self.myScoreLabel.draw(screen)
         self.otherScoreLabel.draw(screen)
+
+    def restart(self):
+        self.setScore(0, 0)
 
     def draw(self, screen):
         # screen.set_clip(self.x, self.y, self.width, self.height)

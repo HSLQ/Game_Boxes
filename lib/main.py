@@ -53,7 +53,14 @@ class Main(object):
     def enterMatching(self):
         self.matching.getRooms()
 
-    def enterGame(self):
+    def joinGame(self, level):
+        self.game = Game(level, self)
+        self.state = STATE.game
+
+    def enterMenu(self):
+        self.state = STATE.menu
+
+    def startedNewGame(self):
         self.game.openRoom()
 
     def update(self):
@@ -70,7 +77,7 @@ class Main(object):
                 self.state = var
             else:
                 self.game = Game(var, self)
-                self.enterGame()
+                self.startedNewGame()
                 self.state = STATE.game
 
         elif STATE.game == self.state:
@@ -91,6 +98,8 @@ class Main(object):
 
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
+                if STATE.game == self.state:
+                    self.gameNet.leaveServer(self.game.gameID)
                 exit()
             if (event.type == pygame.KEYDOWN):
                 if (event.key == pygame.K_ESCAPE):

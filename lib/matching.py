@@ -31,7 +31,6 @@ class Matching(object):
         self.controller = controller
         self.initAttr((width, height))
         self.initElem()
-        self.cnt = 0
 
     def initAttr(self, (width, height)):
         self.width = width
@@ -80,17 +79,26 @@ class Matching(object):
         else:
             return None
 
+    def joinRoom(self, args):
+        roomID = args
+        print "roomID", roomID
+        self.controller.gameNet.joinRoom(roomID)
+
     def draw(self, screen):
-        self.cnt += 1
-        print self.cnt
         self.background.draw(screen)
         self.panel.draw(screen)
         self.returnButton.draw(screen)
+        self.refreshButton.draw(screen)
+
         ret = self.returnButton.click(lambda *args : STATE.menu)
         if ret != None:
             return ret
-        self.refreshButton.draw(screen)
+
         ret = self.refreshButton.click(self.getRooms)
         if ret != None:
             return ret
+
+        for room in self.currentRoom:
+            room.click(self.joinRoom, room.roomID)
+
         return STATE.matching

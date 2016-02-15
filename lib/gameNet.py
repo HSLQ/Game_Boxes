@@ -27,7 +27,7 @@ class GameNet(ConnectionListener):
 
     def leaveServer(self, gameID):
         print "leave server"
-        self.Send({"action": "leaveRoom", "gameID": gameID})
+        self.Send({"action": "leaveRoom", "gameID": gameID, "channelID": self.controller.channelID})
 
     # 开启新的游戏房间
     def openRoom(self, level):
@@ -57,6 +57,11 @@ class GameNet(ConnectionListener):
                 return False
         matching.rooms = self.rooms
         return True
+
+    def joinRoom(self, roomID):
+        channelID = self.controller.channelID
+        print "join room", channelID
+        self.Send({"action": "joinRoom", "roomID": roomID, "channelID": channelID})
 
     def Network_setChannelID(self, data):
         channelID = data["channelID"]
@@ -89,3 +94,21 @@ class GameNet(ConnectionListener):
         roomsList = [[k, v] for (k, v) in roomsDict.items()]
         self.rooms = sorted(roomsList)
         print self.rooms
+
+    # {"action": "enemy","turn": True, "gameID": gameID, "level": level}
+    def Network_enemy(self, data):
+        turn = data["turn"]
+        self.controller.game.enemyComming(turn)
+
+    # {"action": "joined","turn": False, "gameID": gameID, "level": level}
+    def Network_joined(self, data):
+        turn = data["turn"]
+        level = data["level"]
+        self.controller.joinGame(level)
+        self.controller.game.enemyComming(turn)
+
+    def Network_flee(self, data):
+        self.controller.enterMenu()
+
+    def Network_restart(self, data):
+        self.controller.game.restart()

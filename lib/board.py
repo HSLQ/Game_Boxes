@@ -111,6 +111,10 @@ class Board(object):
             if (hPos < self.levelH and self.boardV[vPos][hPos + 1] and self.boardH[vPos][hPos] and self.boardH[vPos + 1][hPos]):
                 self.ownerBoard[vPos][hPos] = "win"
 
+    # 重新初始化棋盘，重新开始游戏
+    def restart(self):
+        self.initBoardArray()
+
     def mouseEvent(self, screen):
         # hover
         mousePos = list(pygame.mouse.get_pos())

@@ -62,6 +62,23 @@ class Game(object):
     def placeLine(self, data):
         self.controller.gameNet.placeLine(data["x"], data["y"], data["h"], self.gameID, self.order)
 
+    def setTurn(self, turn):
+        self.hud.setMark(turn)
+        self.board.setTurn(turn)
+
+    # 对手玩家进入游戏
+    def enemyComming(self, turn):
+        self.setTurn(turn)
+        self.hud.startGame()
+
+    def newHost(self):
+        self.hud.restart()
+
+    # 数据清零，重新开始游戏
+    def restart(self):
+        self.board.restart()
+        self.hud.restart()
+
     def draw(self):
         self.screen.set_clip(None)
         self.background.draw(self.screen)

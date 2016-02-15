@@ -7,14 +7,15 @@ import PodSixNet.Channel
 import PodSixNet.Server
 from time import sleep
 
-class ClientChannel(PodSixNet.Channel.Channel):
+class ClientChannel(PodSixNet.Channel.Channel, object):
+    def __init__(self, *args, **kwargs):
+        super(ClientChannel, self).__init__(*args, **kwargs)
+
     def Network(self, data):
         print data
 
     def Close(self):
         print "connent colsed"
-        # self._server.leaveRoom(self.gameID)
-        # self._server.close(self.gameid)
 
     # data: {"action":"openRoom", "level": level, "channelID": channelID}
     def Network_openRoom(self, data):
@@ -24,11 +25,13 @@ class ClientChannel(PodSixNet.Channel.Channel):
         # 回调 给开启了游戏的链接设置游戏 id
         self._server.openRoom(level, channelID, self)
 
-    # data: {"action": "leaveRoom", "gameID": self.gameID}
+    # data: {"action": "leaveRoom", "gameID": gameID, "channelID": channelID}
     def Network_leaveRoom(self, data):
+        print "leave Room"
         gameID = data["gameID"]
-        print gameID, "leave game"
-        self._server.leaveRoom(gameID)
+        channelID = data["channelID"]
+        print gameID, "leave room"
+        self._server.leaveRoom(gameID, channelID)
 
     def Network_place(self, data):
         #x of placed line
@@ -44,10 +47,12 @@ class ClientChannel(PodSixNet.Channel.Channel):
         #tells server to place line
         self._server.placeLine(x, y, h, self.gameID, order)
 
-    # data: {"action":"joinRoom", "gameID": gameID}
+    # data: {"action":"joinRoom", "roomID": gameID, "channelID": channelID}
     def Network_joinRoom(self, data):
-        print "join game"
-        self._server.joinRoom(gameID)
+        print "join room"
+        gameID = data["roomID"]
+        channelID = data["channelID"]
+        self._server.joinRoom(gameID, channelID, self)
 
     # data: {"action": "getRooms", "channelID", channelID}
     def Network_getRooms(self, data):
@@ -79,36 +84,73 @@ class BoxesServer(PodSixNet.Server.Server):
         self.channelObjs[channelID].Send({"action": "setChannelID", "channelID": channelID})
         
     def openRoom(self, level, channelID, listener):
-        print "start game"
+        print "new room opened"
         gameID = self.currentGameIndex
         listener.gameID = gameID
+        listener.channelID = channelID
         self.channelObjs[channelID].Send({"action": "openRoom", "gameID": gameID})
         self.waitGames[gameID] = level
-        self.games[gameID] = GameJudge(self.channelObjs[channelID], self.currentGameIndex, level)
+        self.games[gameID] = GameJudge(self.channelObjs[channelID], gameID, level)
         self.currentGameIndex += 1
         print self.waitGames
     
-    def joinRoom(self, gameID):
-        print "join game"
-        level = 0
-        try:
-            level = self.waitGames[gameID]
-        except Exception as e:
-            raise
+    def joinRoom(self, gameID, channelID, listener):
+        print "server"
+        print gameID, channelID
+        listener.gameID = gameID
+        listener.channelID = channelID
+        # 获取的是 加入游戏的客户端对象
+        if channelID in self.channelObjs.keys():
+            awayChannel = self.channelObjs[channelID]
         else:
-            return
-        finally:
-            pass
+            print "**error channel"
+            awayChannel = None
 
-        self.games[gameID].player1 = channel
-        self.queue.player0.Send({"action": "startgame","player":0, "gameID": gameID})
-        self.queue.player1.Send({"action": "startgame","player":1, "gameID": gameID})
+        currentGame = self.games[gameID]
+        # 主场客户端对象
+        homeChannel = currentGame.player0
+
+        level = currentGame.level
+
+        print "level", level
+
+        # 设置客场玩家
+        self.games[gameID].player1 = awayChannel
+        homeChannel.Send({"action": "enemy","turn": True, "gameID": gameID, "level": level})
+        awayChannel.Send({"action": "joined","turn": False, "gameID": gameID, "level": level})
+
         # 从等待集合里去除
         del self.waitGames[gameID]
 
-    def leaveRoom(self, gameID):
+    def deleteRoom(self, gameID):
         if self.waitGames.has_key(gameID):
             del self.waitGames[gameID]
+            del self.games[gameID]
+
+    def leaveRoom(self, gameID, channelID):
+        print "sever"
+        print gameID, channelID
+        channel = self.channelObjs[channelID]
+        game = self.games[gameID]
+        print gameID, channelID
+        if (channel == game.player0):
+            self.waitGames[gameID] = game.level
+            game.player0.Send({"action": "flee"})
+            # 客场玩家成为房主
+            if (game.player1 != None):
+                game.player0.Send({"action": "flee"})
+                game.player0 = game.player1
+                game.player1 = None
+                game.player0.Send({"action": "restart"})
+            else:
+                # 如果没有客场玩家则删除房间
+                self.deleteRoom(gameID)
+        else:
+            # 客场玩家逃跑
+            self.waitGames[gameID] = game.level
+            game.player1.Send({"action": "flee"})
+            game.player0.Send({"action": "restart"})
+
 
     def placeLine(self, x, y, h, gameID, order):
         print x, y
@@ -120,6 +162,7 @@ class BoxesServer(PodSixNet.Server.Server):
         channel = self.channelObjs[channelID]
         print channel
         channel.Send({"action": "setRooms", "rooms": self.waitGames})
+
 
 class GameJudge:
     def __init__(self, player0, currentGameIndex, level):
@@ -139,6 +182,7 @@ class GameJudge:
         
 #gameID of game
         self.gameID = currentGameIndex
+        self.level = level
 
 print ("STARTING SERVER ON LOCALHOST")
 # boxesServe = BoxesServer()

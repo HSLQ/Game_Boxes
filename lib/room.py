@@ -7,29 +7,22 @@ from settings import ROOM
 from centeredText import CenteredText
 from text import Text
 from div import Div
+from button import Button
 from background import Background
 import math
 import pygame
 
-class Room(Div):
+class Room(Div, Button):
     """room div in matching"""
     def __init__(self, roomID, roomLevel, (width, height), (x, y)):
-        super(Room, self).__init__((width, height), (x, y))
-        self.initAttr((width, height), (x, y))
-        self.initElem()
+        Div.__init__(self, (width, height), (x, y))
+        Button.__init__(self, self.rect)
+        self.initAttr()
         self.setID(roomID)
         self.setLevel(roomLevel)
 
-    def initAttr(self, (width, height), (x, y)):
-        self.width = width
-        self.height = height
-        self.x = x
-        self.y = y
+    def initAttr(self):
         self.idFont = ROOM["ROOM_ID_FONTS"]
-
-    def initElem(self):
-        self.background = Background((self.width, self.height), (self.x, self.y))
-        self.background.setColor((180, 180, 180))
 
     def setID(self, roomID):
         self.roomID = roomID
@@ -71,10 +64,10 @@ class Room(Div):
             (self.x + self.width - ROOM["ROOM_LEVEL_NUM_OFFSET_RIGHT"],
                 self.y + self.height - (ROOM["ROOM_LEVEL_OFFSET_BOTTOM"]))
             )
-        
-
+    
     def draw(self, screen):
-        self.background.draw(screen)
+        Div.draw(self, screen)
+        Button.draw(self, screen)
         self.roomIDLabel.draw(screen)
         self.roomIDText.draw(screen)
         self.roomLevelText.draw(screen)
