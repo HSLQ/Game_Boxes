@@ -54,10 +54,16 @@ class Main(object):
     def enterMatching(self):
         self.matching.getRooms()
 
-    def joinGame(self, level, gameID):
+    def enemyComming(self, turn):
+        self.game.order = 0
+        self.game.enemyComming(turn)
+
+    def joinGame(self, level, gameID, turn):
         self.game = Game(level, self)
         self.game.gameID = gameID
+        self.game.order = 1
         self.state = STATE.game
+        self.game.enemyComming(turn)
 
     def enterMenu(self):
         self.state = STATE.menu

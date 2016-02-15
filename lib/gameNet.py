@@ -35,9 +35,13 @@ class GameNet(ConnectionListener):
         print "open room"
         self.Send({"action": "openRoom", "level": level, "channelID": self.controller.channelID})
 
-    def placeLine(self, x, y, h, gameID, order):
+    # data: {"action": "place", "x": x, "y": y, "h": h, "point": ret["point"], "gameID": gameID, "order": order}
+    def placeLine(self, data, gameID, order):
+        data["action"] = "place"
+        data["gameID"] = gameID
+        data["order"] = order
         print "place line"
-        self.Send({"action": "place", "x": x, "y": y, "h": h, "gameID": gameID, "order": order})
+        self.Send(data)
 
     def getRooms(self, matching):
         print "refresh room"
@@ -95,21 +99,30 @@ class GameNet(ConnectionListener):
         self.rooms = sorted(roomsList)
         print self.rooms
 
-    # {"action": "enemy","turn": True, "gameID": gameID, "level": level}
+    # data: {"action": "enemy","turn": True, "gameID": gameID, "level": level}
     def Network_enemy(self, data):
         turn = data["turn"]
-        self.controller.game.enemyComming(turn)
+        self.controller.enemyComming(turn)
 
-    # {"action": "joined","turn": False, "gameID": gameID, "level": level}
+    # data: {"action": "joined","turn": False, "gameID": gameID, "level": level}
     def Network_joined(self, data):
         turn = data["turn"]
         level = data["level"]
         gameID = data["gameID"]
-        self.controller.joinGame(level, gameID)
-        self.controller.game.enemyComming(turn)
+        self.controller.joinGame(level, gameID, turn)
 
+    # data: {"action": "flee"}
     def Network_flee(self, data):
         self.exit() if self.exitFlag else self.controller.enterMenu()
+
+    def Network_place(self, data):
+        x = data["x"]
+        y = data["y"]
+        h = data["h"]
+        turn = data["turn"]
+        point = data["point"]
+        order = data["order"]
+        self.controller.game.placeLineAnswer(turn, x, y, h, point, order)
 
     def exit(self):
         self.controller.exit()

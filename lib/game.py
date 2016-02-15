@@ -60,7 +60,7 @@ class Game(object):
         return STATE.menu
 
     def placeLine(self, data):
-        self.controller.gameNet.placeLine(data["x"], data["y"], data["h"], self.gameID, self.order)
+        self.controller.gameNet.placeLine(data, self.gameID, self.order)
 
     def setTurn(self, turn):
         self.hud.setMark(turn)
@@ -78,6 +78,13 @@ class Game(object):
     def restart(self):
         self.board.restart()
         self.hud.restart()
+
+    def placeLineAnswer(self, turn, x, y, h, point, order):
+        self.setTurn(turn)
+        if order == self.order:
+            self.board.placeLine(x, y, h, point, True)
+        else:
+            self.board.placeLine(x, y, h, point, False)
 
     def draw(self):
         self.screen.set_clip(None)

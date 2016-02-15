@@ -30,7 +30,7 @@ class Board(object):
         self.x, self.y = posX, posY
 
         self.greenplayer = pygame.transform.scale(BOARD["GREEN_SQUARE"], (self.stickLength, self.stickLength))
-        self.yellowplayer = BOARD["YELLOW_SQUARE"]
+        self.yellowplayer = pygame.transform.scale(BOARD["YELLOW_SQUARE"], (self.stickLength, self.stickLength))
         self.marker = self.greenplayer
         self.othermarker = self.yellowplayer
 
@@ -40,9 +40,10 @@ class Board(object):
         self.setTurn(True)
 
     def setTurn(self, turn):
-        self.turn = True
+        self.turn = turn
 
     def initBoardArray(self):
+        print "init board"
         self.boardH = [[False for x in range(self.levelH)] for y in range(self.levelV + 1)]
         self.boardV = [[False for x in range(self.levelH + 1)] for y in range(self.levelV)]
         self.ownerBoard = [[0 for x in range(self.levelH)] for y in range(self.levelV)]
@@ -97,19 +98,24 @@ class Board(object):
                     if self.ownerBoard[v][h] == "lose": 
                         screen.blit(self.othermarker, self.getOwnerPostion(h, v))
 
+    # 返回得分座标 或 None
     def isGetPoint(self, hPos, vPos, is_horizontal):
-        print hPos, vPos
         board = self.boardH if is_horizontal else self.boardV
         if (is_horizontal):
             if (vPos < self.levelV and self.boardH[vPos + 1][hPos] and self.boardV[vPos][hPos] and self.boardV[vPos][hPos + 1]):
                 self.ownerBoard[vPos][hPos] = "win"
+                return {"x":hPos, "y":vPos}
             if (vPos > 0 and self.boardH[vPos - 1][hPos] and self.boardV[vPos - 1][hPos] and  self.boardV[vPos - 1][hPos + 1]):
                 self.ownerBoard[vPos - 1][hPos] = "win"
+                return {"x":hPos, "y":vPos - 1}
         else:
             if (hPos > 0 and self.boardV[vPos][hPos - 1] and self.boardH[vPos][hPos - 1] and self.boardH[vPos + 1][hPos - 1]):
                 self.ownerBoard[vPos][hPos - 1] = "win"
+                return {"x":hPos - 1, "y":vPos}
             if (hPos < self.levelH and self.boardV[vPos][hPos + 1] and self.boardH[vPos][hPos] and self.boardH[vPos + 1][hPos]):
                 self.ownerBoard[vPos][hPos] = "win"
+                return {"x":hPos, "y":vPos}
+        return None
 
     # 重新初始化棋盘，重新开始游戏
     def restart(self):
@@ -166,8 +172,17 @@ class Board(object):
             else:
                 self.boardV[vPos][hPos] = True
                 ret = {"x":hPos, "y":vPos, "h": False}
-            self.isGetPoint(hPos, vPos, is_horizontal)
+            ret["point"] = self.isGetPoint(hPos, vPos, is_horizontal)
         return ret
+
+    def placeLine(self, x, y, h, point, win):
+        board = self.boardH if h else self.boardV
+        board[y][x] = True
+        if point != None:
+            if win:
+                self.ownerBoard[point["y"]][point["x"]] = "win"
+            else:
+                self.ownerBoard[point["y"]][point["x"]] = "lose"
 
     def draw(self, screen):
         # screen.set_clip(self.x, self.y, self.width, self.height)

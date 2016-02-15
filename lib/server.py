@@ -33,6 +33,7 @@ class ClientChannel(PodSixNet.Channel.Channel, object):
         print gameID, "leave room"
         self._server.leaveRoom(gameID, channelID)
 
+    # data: {"action": "place", "x": x, "y": y, "h": h, "point": ret["point"], "gameID": gameID, "order": order}
     def Network_place(self, data):
         #x of placed line
         x = data["x"]
@@ -42,10 +43,12 @@ class ClientChannel(PodSixNet.Channel.Channel, object):
         h = data["h"]
         #id of game given by server at start of game
         self.gameID = data["gameID"]
+
+        point = data["point"]
         #player number (1 or 0)
         order = data["order"]
         #tells server to place line
-        self._server.placeLine(x, y, h, self.gameID, order)
+        self._server.placeLine(x, y, h, point, self.gameID, order)
 
     # data: {"action":"joinRoom", "roomID": gameID, "channelID": channelID}
     def Network_joinRoom(self, data):
@@ -115,14 +118,11 @@ class BoxesServer(PodSixNet.Server.Server):
 
         level = currentGame.level
 
-        print "level", level
-
-
         # 设置客场玩家
-        self.games[gameID].player1 = awayChannel
+        currentGame.player1 = awayChannel
         awayChannel.gameID = gameID
-        homeChannel.Send({"action": "enemy","turn": True, "gameID": gameID, "level": level})
-        awayChannel.Send({"action": "joined","turn": False, "gameID": gameID, "level": level})
+        homeChannel.Send({"action": "enemy", "turn": currentGame.turn, "gameID": gameID, "level": level})
+        awayChannel.Send({"action": "joined", "turn": not currentGame.turn, "gameID": gameID, "level": level})
 
         # 从等待集合里去除
         del self.waitGames[gameID]
@@ -160,9 +160,20 @@ class BoxesServer(PodSixNet.Server.Server):
             game.player1.Send({"action": "flee"})
             game.player0.Send({"action": "restart"})
 
-
-    def placeLine(self, x, y, h, gameID, order):
-        print x, y
+    def placeLine(self, x, y, h, point, gameID, order):
+        print "server"
+        game = self.games[gameID]
+        if point != None:
+            vPos = int(point["y"])
+            hPos = int(point["x"])
+            print vPos, hPos
+            game.owner[vPos][hPos] = True
+        home = game.player0
+        away = game.player1
+        game.turn = not game.turn
+        home.Send({"action":"place", "turn": game.turn, "x": x, "y": y, "h": h, "point": point, "order": order})
+        if away != None:
+            away.Send({"action":"place", "turn": not game.turn, "x": x, "y": y, "h": h, "point": point, "order": order})
 
     def getRooms(self, channelID):
         print channelID
@@ -177,7 +188,8 @@ class GameJudge:
     def __init__(self, player0, currentGameIndex, level):
         
 # whose turn (1 or 0)
-        self.turn = 0
+        # 主场玩家先出手
+        self.turn = True
 #owner map
         self.owner = [[False for x in range(level)] for y in range(level)]
         
@@ -192,6 +204,7 @@ class GameJudge:
 #gameID of game
         self.gameID = currentGameIndex
         self.level = level
+
 
 print ("STARTING SERVER ON LOCALHOST")
 # boxesServe = BoxesServer()
