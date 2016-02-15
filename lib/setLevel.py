@@ -71,11 +71,15 @@ class SetLevel(object):
         self.drawLevelSet(screen)
         self.beginButton.draw(screen)
         self.returnButton.draw(screen)
-        retGame = self.beginButton.click(lambda : Game(self.level))
-        ret = self.returnButton.click(lambda : STATE.menu)
+        ret = self.beginButton.click(lambda *args : self.level)
+        if ret != None:
+            return ret
+        ret = self.returnButton.click(lambda *args : STATE.menu)
+        if ret != None:
+            return ret
         self.rArrow.click(self.setLevel, self.level + 1)
         self.lArrow.click(self.setLevel, self.level - 1)
-        return retGame if retGame != None else ret if STATE.menu == ret else STATE.setLevel
+        return STATE.setLevel
 
         
         

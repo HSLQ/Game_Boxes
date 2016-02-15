@@ -11,7 +11,8 @@ from pygame.locals import *
 
 class Menu(object):
     """menu of the game"""
-    def __init__(self, width, height):
+    def __init__(self, (width, height), controller):
+        self.controller = controller
         self.initAttr(width, height);
         self.loadResource()
 
@@ -44,6 +45,7 @@ class Menu(object):
                         return STATE.setLevel
                     elif MENU_TEXTS[1] == button.content:
                         print "matching"
+                        self.controller.enterMatching()
                         return STATE.matching
                     elif MENU_TEXTS[2] == button.content:
                         print "rules"

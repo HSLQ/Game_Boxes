@@ -3,7 +3,7 @@
 
 __author__ = 'Piratf'
 
-from settings import MATCHING, STATE, NETWORK
+from settings import MATCHING, STATE
 from textButton import TextButton
 from background import Background
 from div import Div
@@ -11,7 +11,6 @@ from panel import Panel
 from room import Room
 import pygame
 import random
-from PodSixNet.Connection import ConnectionListener, connection 
 from time import sleep
 
 # 游戏匹配界面
@@ -25,14 +24,14 @@ from time import sleep
 # 实例化完成后传递到 panel 中，
 # panel 负责绘制 panel 内部的内容
 # ---
-class Matching(ConnectionListener):
+class Matching(object):
     """matching frame, show rooms which could be linked"""
-    def __init__(self, (width, height)):
+    def __init__(self, (width, height), controller):
         # super(Matching, self).__init__()
+        self.controller = controller
         self.initAttr((width, height))
         self.initElem()
-        self.connectToServer()
-        self.getRooms()
+        self.cnt = 0
 
     def initAttr(self, (width, height)):
         self.width = width
@@ -52,11 +51,6 @@ class Matching(ConnectionListener):
         self.returnButton = TextButton(self.buttonFont, MATCHING["RETURN_BUTTON_CONTENT"], (MATCHING["RETURN_BUTTON_OFFSET_LEFT"], self.height - MATCHING["RETURN_BUTTON_OFFSET_BOTTOM"]))
         self.refreshButton = TextButton(self.buttonFont, MATCHING["REFRESH_BUTTON_CONTENT"], (self.width - MATCHING["REFRESH_BUTTON_OFFSET_RIGHT"], self.height - MATCHING["REFRESH_BUTTON_OFFSET_BOTTOM"]))
 
-    def connectToServer(self):
-        host, port = NETWORK["HOST"], NETWORK["PORT"]
-        self.Connect((host, int(port)))
-        print "linked to server"
-
     def setRoomLayout(self, (row, col) = (MATCHING["ROOMS_ROW"], MATCHING["ROOMS_COL"])):
         panelWidth = self.width - MATCHING["PANEL_OFFSET_LEFT"] * 2
         panelHeight = self.height - MATCHING["PANEL_OFFSET_TOP"] - MATCHING["PANEL_OFFSET_BOTTOM"]
@@ -64,8 +58,9 @@ class Matching(ConnectionListener):
         self.currentRoomLocation = self.panel.getLocationList()
         self.roomSize = self.panel.getChildSize()
 
+    # 更新当前房间对象，放入panel 中，为绘制做准备
     def setCurrentRoom(self):
-        if len(self.rooms) < 1: 
+        if len(self.rooms) < 1 or self.rooms == None: 
             self.currentRoom = []
         else:
             self.currentRoomID = [self.rooms[self.beginIndex + x][0] for x in range(self.roomsInOnePage) if (self.beginIndex + x) < self.roomCount]
@@ -74,34 +69,28 @@ class Matching(ConnectionListener):
         self.panel.setChildren(self.currentRoom)
 
     # 设置房间个数
-    def getRooms(self):
+    def getRooms(self, *args):
         print "get rooms"
         # 从服务器获取房间
-        self.rooms = []
-        self.Send({"action": "getRooms"})
-        sleep(0.5)
-        if [] == self.rooms:
-            print "network error, reconnenting"
-            self.connectToServer()
+        ret = self.controller.gameNet.getRooms(self)
         self.roomCount = len(self.rooms)
         self.setCurrentRoom()
-        return None
-
-    # data: {"action": "setRooms", "rooms": waitGames}
-    def Network_setRooms(self, data):
-        print "set rooms"
-        roomsDict = data["rooms"]
-        roomsList = [[k, v] for (k, v) in roomsDict.items()]
-        print roomsList
-        self.rooms = sorted(roomsList)
+        if False == ret:
+            return STATE.menu
+        else:
+            return None
 
     def draw(self, screen):
-        connection.Pump()
-        self.Pump()
+        self.cnt += 1
+        print self.cnt
         self.background.draw(screen)
         self.panel.draw(screen)
         self.returnButton.draw(screen)
-        var = self.returnButton.click(lambda : STATE.menu)
+        ret = self.returnButton.click(lambda *args : STATE.menu)
+        if ret != None:
+            return ret
         self.refreshButton.draw(screen)
-        self.refreshButton.click(self.getRooms)
-        return var if var else STATE.matching
+        ret = self.refreshButton.click(self.getRooms)
+        if ret != None:
+            return ret
+        return STATE.matching

@@ -12,30 +12,47 @@ class ClientChannel(PodSixNet.Channel.Channel):
         print data
 
     def Close(self):
-        print "leaving"
+        print "connent colsed"
+        # self._server.leaveRoom(self.gameID)
         # self._server.close(self.gameid)
 
-    # data: {"action": "leaveGame", "gameID": self.gameID}
-    # 玩家在匹配之前离开游戏
-    def Network_leaveGame(self, data):
-        print "leave game"
-        gameID = data["gameID"]
-        self._server.leaveGame(gameID)
-
-    # data: {"action":"startGame", "level": level}
-    def Network_startGame(self, data):
+    # data: {"action":"openRoom", "level": level}
+    def Network_openRoom(self, data):
+        print "open room"
         level = data["level"]
-        self._server.startGame(level)
+        self._server.openRoom(level)
 
-    # data: {"action":"joinGame", "gameID": gameID}
-    def Network_joinGame(self, data):
+    # data: {"action": "leaveRoom", "gameID": self.gameID}
+    def Network_leaveRoom(self, data):
+        gameID = data["gameID"]
+        print gameID, "leave game"
+        self._server.leaveRoom(gameID)
+
+    def Network_place(self, data):
+        #x of placed line
+        x = data["x"]
+        #y of placed line
+        y = data["y"]
+        #horizontal or vertical?
+        h = data["h"]
+        #id of game given by server at start of game
+        self.gameID = data["gameID"]
+        #player number (1 or 0)
+        order = data["order"]
+        #tells server to place line
+        self._server.placeLine(x, y, h, self.gameID, order)
+
+    # data: {"action":"joinRoom", "gameID": gameID}
+    def Network_joinRoom(self, data):
         print "join game"
-        self._server.joinGame(gameID)
+        self._server.joinRoom(gameID)
 
+    # data: {"action": "getRooms"}
     def Network_getRooms(self, data):
         print "get rooms"
         self._server.getRooms()
- 
+
+
 class BoxesServer(PodSixNet.Server.Server):
     def __init__(self, *args, **kwargs):
         PodSixNet.Server.Server.__init__(self, *args, **kwargs)
@@ -50,14 +67,16 @@ class BoxesServer(PodSixNet.Server.Server):
         print 'new connection:', channel
         self.currentChannel = channel
         
-    def startGame(self, level):
+    def openRoom(self, level):
         print "start game"
         gameID = self.currentIndex
-        self.currentChannel.gameID = gameID
+        self.currentChannel.Send({"action": "openRoom", "gameID": gameID})
         self.waitGames[gameID] = level
         self.games[gameID] = Game(self.currentChannel, self.currentIndex, level)
+        self.currentIndex += 1
+        print self.waitGames
     
-    def joinGame(self, gameID):
+    def joinRoom(self, gameID):
         print "join game"
         level = 0
         try:
@@ -75,9 +94,12 @@ class BoxesServer(PodSixNet.Server.Server):
         # 从等待集合里去除
         del self.waitGames[gameID]
 
-    def leaveGame(self, gameID):
+    def leaveRoom(self, gameID):
         if self.waitGames.has_key(gameID):
             del self.waitGames[gameID]
+
+    def placeLine(self, x, y, h, gameID, order):
+        print x, y
 
     def getRooms(self):
         print self.waitGames

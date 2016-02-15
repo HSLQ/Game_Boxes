@@ -3,7 +3,7 @@
 
 __author__ = 'Piratf'
 
-from settings import GAME, BOARD, STATE, NETWORK
+from settings import GAME, BOARD, STATE
 from textButton import TextButton
 from centeredImage import CenteredImage
 from background import Background
@@ -11,16 +11,15 @@ from hud import Hud
 from board import Board
 import pygame
 from pygame.locals import *
-from PodSixNet.Connection import ConnectionListener, connection
 
-class Game(ConnectionListener):
+class Game(object):
     """main frame of the game"""
-    def __init__(self, level):
+    def __init__(self, level, controller):
         # super(game, self).__init__()
+        self.controller = controller
         self.initAttr(level)
         self.initElement()
         self.initContext()
-        self.connectToServer()
 
     def initAttr(self, level):
         self.turn = True
@@ -36,7 +35,7 @@ class Game(ConnectionListener):
 
         self.width = self.board.width + self.hud.width
 
-        self.gameID = None
+        self.gameID = 0
         self.order = None
 
     def initElement(self):
@@ -47,44 +46,31 @@ class Game(ConnectionListener):
         # 返回按钮
         self.returnButton = TextButton(GAME["RETURN_BUTTON_FONTS"], GAME["RETURN_BUTTON_CONTENT"], (30, 30))
 
-    def connectToServer(self):
-        host, port = NETWORK["HOST"], NETWORK["PORT"]
-        self.Connect((host, int(port)))
-        print "linked to server"
-        self.Send({"action":"startGame", "level": self.level})
-
     def initContext(self):
-        self.screen = pygame.display.set_mode((self.width, self.height), NOFRAME)
+        self.screen = pygame.display.set_mode((self.width, self.height), DOUBLEBUF)
         pygame.display.set_caption("Boxes")
         self.clock = pygame.time.Clock();
-    
-    def Network_startgame(self, data):
-        # 获取服务器的数据
-        self.order = data["player"]
-        self.gameID = data["gameID"]
-        # 分配游戏顺序
-        if self.order == 0:
-            self.turn = True
-            self.board.setTurn(self.turn)
-        else:
-            self.turn = False
-            self.board.setTurn(self.turn)
-        self.hud.setMark(self.turn)
-        self.hud.startGame()
 
-    def leaveGame(self):
-        self.Send({"action": "leaveGame", "gameID": self.gameID})
+    def openRoom(self):
+        print "open room"
+        self.controller.gameNet.openRoom(self.level)
+
+    def leaveServer(self, *args):
+        self.controller.gameNet.leaveServer(self.gameID)
         return STATE.menu
 
+    def placeLine(self, data):
+        self.controller.gameNet.placeLine(data["x"], data["y"], data["h"], self.gameID, self.order)
+
     def draw(self):
-        connection.Pump()
-        self.Pump()
         self.screen.set_clip(None)
         self.background.draw(self.screen)
         ret = self.board.draw(self.screen)
         if ret != None:
-            self.Send({"action": "place", "x":ret["x"], "y":ret["y"], "is_horizontal": ret["h"], "gameID": self.gameID, "order": self.order})
+            self.placeLine(ret)
         self.hud.draw(self.screen)
         self.returnButton.draw(self.screen)
-        var = self.returnButton.click(self.leaveGame)
-        return var if var else STATE.game
+        var = self.returnButton.click(self.leaveServer)
+        if var != None:
+            return var
+        return STATE.game

@@ -18,10 +18,7 @@ class Button(object):
         if 0 == self.justClicked and pygame.mouse.get_pressed()[0]:
             if self.rect.collidepoint(pygame.mouse.get_pos()):
                 self.justClicked = self.justClickedOrigin
-                if len(args) < 1:
-                    ret = foo()
-                else:
-                    ret = foo(args)
+                ret = foo(args)
                 return ret
         return None
 
