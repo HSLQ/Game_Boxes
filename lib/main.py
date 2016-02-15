@@ -13,6 +13,7 @@ from matching import Matching
 from gameNet import GameNet
 import pygame
 from pygame.locals import *
+from time import sleep
 
 class Main(object):
     """main loop of the game"""
@@ -99,14 +100,22 @@ class Main(object):
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 if STATE.game == self.state:
+                    self.gameNet.exitFlag = True
                     self.gameNet.leaveServer(self.game.gameID)
-                exit()
-            if (event.type == pygame.KEYDOWN):
-                if (event.key == pygame.K_ESCAPE):
-                    exit()
+                else:
                     pygame.quit()
+                    exit()
+                # exit()
+            # if (event.type == pygame.KEYDOWN):
+            #     if (event.key == pygame.K_ESCAPE):
+            #         exit()
+            #         pygame.quit()
         pygame.display.flip()
 
     def run(self):
         while self.running:
             self.update()
+
+    def exit(self):
+        pygame.quit()
+        exit()

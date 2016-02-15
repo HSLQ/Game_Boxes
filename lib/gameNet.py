@@ -13,6 +13,7 @@ class GameNet(ConnectionListener):
         # super(GameNet, self).__init__()
         self.controller = controller
         self.linked = False
+        self.exitFlag = False
 
     def connectToServer(self):
         if not self.linked:
@@ -26,7 +27,7 @@ class GameNet(ConnectionListener):
             self.Pump()
 
     def leaveServer(self, gameID):
-        print "leave server"
+        # print "leave server", gameID
         self.Send({"action": "leaveRoom", "gameID": gameID, "channelID": self.controller.channelID})
 
     # 开启新的游戏房间
@@ -108,7 +109,10 @@ class GameNet(ConnectionListener):
         self.controller.game.enemyComming(turn)
 
     def Network_flee(self, data):
-        self.controller.enterMenu()
+        self.exit() if self.exitFlag else self.controller.enterMenu()
+
+    def exit(self):
+        self.controller.exit()
 
     def Network_restart(self, data):
         self.controller.game.restart()
