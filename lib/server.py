@@ -15,7 +15,7 @@ class ClientChannel(PodSixNet.Channel.Channel, object):
         print data
 
     def Close(self):
-        print "connent colsed"
+        print "connent closed"
 
     # data: {"action":"openRoom", "level": level, "channelID": channelID}
     def Network_openRoom(self, data):
@@ -88,15 +88,17 @@ class BoxesServer(PodSixNet.Server.Server):
         gameID = self.currentGameIndex
         listener.gameID = gameID
         listener.channelID = channelID
-        self.channelObjs[channelID].Send({"action": "openRoom", "gameID": gameID})
+        channel = self.channelObjs[channelID]
+        channel.gameID = gameID
+        channel.Send({"action": "openRoom", "gameID": gameID})
         self.waitGames[gameID] = level
-        self.games[gameID] = GameJudge(self.channelObjs[channelID], gameID, level)
+        self.games[gameID] = GameJudge(channel, gameID, level)
         self.currentGameIndex += 1
         print self.waitGames
     
     def joinRoom(self, gameID, channelID, listener):
         print "server"
-        print gameID, channelID
+        print "gameID", gameID, "channelID", channelID
         listener.gameID = gameID
         listener.channelID = channelID
         # 获取的是 加入游戏的客户端对象
@@ -109,13 +111,16 @@ class BoxesServer(PodSixNet.Server.Server):
         currentGame = self.games[gameID]
         # 主场客户端对象
         homeChannel = currentGame.player0
+        homeChannel.gameID = gameID
 
         level = currentGame.level
 
         print "level", level
 
+
         # 设置客场玩家
         self.games[gameID].player1 = awayChannel
+        awayChannel.gameID = gameID
         homeChannel.Send({"action": "enemy","turn": True, "gameID": gameID, "level": level})
         awayChannel.Send({"action": "joined","turn": False, "gameID": gameID, "level": level})
 
@@ -130,10 +135,13 @@ class BoxesServer(PodSixNet.Server.Server):
     def leaveRoom(self, gameID, channelID):
         print "sever"
         print gameID, channelID
+
         channel = self.channelObjs[channelID]
         game = self.games[gameID]
+
         print gameID, channelID
         if (channel == game.player0):
+            print "home leaving room"
             self.waitGames[gameID] = game.level
             game.player0.Send({"action": "flee"})
             # 客场玩家成为房主
@@ -146,6 +154,7 @@ class BoxesServer(PodSixNet.Server.Server):
                 # 如果没有客场玩家则删除房间
                 self.deleteRoom(gameID)
         else:
+            print "away leaving room"
             # 客场玩家逃跑
             self.waitGames[gameID] = game.level
             game.player1.Send({"action": "flee"})

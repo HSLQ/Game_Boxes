@@ -48,7 +48,6 @@ class GameNet(ConnectionListener):
         startTime = time.time()
         while (self.rooms == None):
             self.pump()
-            print self.rooms
             if (time.time() - startTime > 1) and rec < 3:
                 print "Network error, trying reconnecting"
                 self.connectToServer()
@@ -105,7 +104,8 @@ class GameNet(ConnectionListener):
     def Network_joined(self, data):
         turn = data["turn"]
         level = data["level"]
-        self.controller.joinGame(level)
+        gameID = data["gameID"]
+        self.controller.joinGame(level, gameID)
         self.controller.game.enemyComming(turn)
 
     def Network_flee(self, data):

@@ -42,16 +42,7 @@ class Hud(object):
             HUD["MY_SCORE_LABEL_CONTENT"], 
             (myLabelOffSetLeft + HUD["MY_SCORE_LABEL_OFFSET_LEFT"], 
                 myLabelOffSetTop + HUD["MY_SCORE_LABEL_OFFSET_TOP"]))
-        otherLabelOffSet = HUD["WAIT_BATTLE_LABEL_FONT"].size(HUD["WAIT_BATTLE_LABEL_CONTENT"])
-        [otherLabelOffSetLeft, otherLabelOffSetBottom] = [
-        self.x + otherLabelOffSet[0] / 2. + 
-            HUD["WAIT_BATTLE_LABEL_OFFSET_LEFT"],
-        self.y + otherLabelOffSet[1] / 2. + 
-            HUD["WAIT_BATTLE_LABEL_OFFSET_BOTTOM"]
-        ]
-        self.otherScoreLabel = CenteredText(HUD["WAIT_BATTLE_LABEL_FONT"], 
-            HUD["WAIT_BATTLE_LABEL_CONTENT"], 
-            (otherLabelOffSetLeft, self.height - otherLabelOffSetBottom))
+        self.initWaitingLabel()
 
     def setMark(self, Turn):
         if Turn:
@@ -67,6 +58,18 @@ class Hud(object):
         [otherScoreOffSetLeft, otherScoreOffSetTop] = [var / 2 for var in HUD["MARK_TEXT_FONTS"].size(str(otherScore))]
         self.otherScoreText = CenteredText(HUD["SCORE_TEXT_FONTS"], str(myScore), (otherScoreOffSetLeft + HUD["OTHER_SCORE_TEXT_OFFSET_LEFT"], self.height - otherScoreOffSetTop - HUD["OTHER_SCORE_TEXT_OFFSET_BOTTOM"]))
 
+    def initWaitingLabel(self):
+        otherLabelOffSet = HUD["WAIT_BATTLE_LABEL_FONT"].size(HUD["WAIT_BATTLE_LABEL_CONTENT"])
+        [otherLabelOffSetLeft, otherLabelOffSetBottom] = [
+        self.x + otherLabelOffSet[0] / 2. + 
+            HUD["WAIT_BATTLE_LABEL_OFFSET_LEFT"],
+        self.y + otherLabelOffSet[1] / 2. + 
+            HUD["WAIT_BATTLE_LABEL_OFFSET_BOTTOM"]
+        ]
+        self.waitingLabel = CenteredText(HUD["WAIT_BATTLE_LABEL_FONT"], 
+            HUD["WAIT_BATTLE_LABEL_CONTENT"], 
+            (otherLabelOffSetLeft, self.height - otherLabelOffSetBottom))
+
     def startGame(self):
         self.started = True
         [otherLabelOffSetLeft, otherLabelOffSetTop] = [var / 2 for var in HUD["LABEL_FONTS"].size(HUD["OTHER_SCORE_LABEL_CONTENT"])]
@@ -79,11 +82,13 @@ class Hud(object):
         self.myScoreText.draw(screen)
         if self.started:
             self.otherScoreText.draw(screen)
-
+            self.otherScoreLabel.draw(screen)
+        else:
+            self.waitingLabel.draw(screen)
         self.myScoreLabel.draw(screen)
-        self.otherScoreLabel.draw(screen)
 
     def restart(self):
+        self.started = False
         self.setScore(0, 0)
 
     def draw(self, screen):

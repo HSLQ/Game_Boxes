@@ -54,8 +54,9 @@ class Main(object):
     def enterMatching(self):
         self.matching.getRooms()
 
-    def joinGame(self, level):
+    def joinGame(self, level, gameID):
         self.game = Game(level, self)
+        self.game.gameID = gameID
         self.state = STATE.game
 
     def enterMenu(self):
