@@ -163,17 +163,26 @@ class BoxesServer(PodSixNet.Server.Server):
     def placeLine(self, x, y, h, point, gameID, order):
         print "server"
         game = self.games[gameID]
+        # 出现得分
         if point != None:
             vPos = int(point["y"])
             hPos = int(point["x"])
             print vPos, hPos
             game.owner[vPos][hPos] = True
+            if 0 == order:
+                game.addScore0()
+            else:
+                game.addScore1()
         home = game.player0
         away = game.player1
         game.turn = not game.turn
         home.Send({"action":"place", "turn": game.turn, "x": x, "y": y, "h": h, "point": point, "order": order})
         if away != None:
             away.Send({"action":"place", "turn": not game.turn, "x": x, "y": y, "h": h, "point": point, "order": order})
+        if game.win():
+            if (game.player0Score > game.player1Score):
+                
+
 
     def getRooms(self, channelID):
         print channelID
@@ -204,7 +213,18 @@ class GameJudge:
 #gameID of game
         self.gameID = currentGameIndex
         self.level = level
+        self.point = 0
+        self.player0Score = 0
+        self.player1Score = 0
 
+    def win(self):
+        return self.point >= self.level * self.level
+
+    def addScore0(self):
+        self.player0Score += 1
+
+    def addScore1(self):
+        self.player1Score += 1
 
 print ("STARTING SERVER ON LOCALHOST")
 # boxesServe = BoxesServer()
