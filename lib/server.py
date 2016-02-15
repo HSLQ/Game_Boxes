@@ -16,11 +16,13 @@ class ClientChannel(PodSixNet.Channel.Channel):
         # self._server.leaveRoom(self.gameID)
         # self._server.close(self.gameid)
 
-    # data: {"action":"openRoom", "level": level}
+    # data: {"action":"openRoom", "level": level, "channelID": channelID}
     def Network_openRoom(self, data):
         print "open room"
         level = data["level"]
-        self._server.openRoom(level)
+        channelID = data["channelID"]
+        # 回调 给开启了游戏的链接设置游戏 id
+        self._server.openRoom(level, channelID, self)
 
     # data: {"action": "leaveRoom", "gameID": self.gameID}
     def Network_leaveRoom(self, data):
@@ -47,10 +49,11 @@ class ClientChannel(PodSixNet.Channel.Channel):
         print "join game"
         self._server.joinRoom(gameID)
 
-    # data: {"action": "getRooms"}
+    # data: {"action": "getRooms", "channelID", channelID}
     def Network_getRooms(self, data):
         print "get rooms"
-        self._server.getRooms()
+        channelID = data["channelID"]
+        self._server.getRooms(channelID)
 
 
 class BoxesServer(PodSixNet.Server.Server):
@@ -58,22 +61,31 @@ class BoxesServer(PodSixNet.Server.Server):
         PodSixNet.Server.Server.__init__(self, *args, **kwargs)
         self.games = {}
         self.waitGames = {}
+        self.channelObjs = {}
         self.queue = None
-        self.currentIndex=0
+        self.currentGameIndex=0
+        self.currentChannelIndex = 0
 
     channelClass = ClientChannel
  
     def Connected(self, channel, addr):
         print 'new connection:', channel
-        self.currentChannel = channel
+        self.currentChannelIndex += 1
+        self.channelObjs[self.currentChannelIndex] = channel
+        self.setChannelID(self.currentChannelIndex)
+        print self.currentChannelIndex
+
+    def setChannelID(self, channelID):
+        self.channelObjs[channelID].Send({"action": "setChannelID", "channelID": channelID})
         
-    def openRoom(self, level):
+    def openRoom(self, level, channelID, listener):
         print "start game"
-        gameID = self.currentIndex
-        self.currentChannel.Send({"action": "openRoom", "gameID": gameID})
+        gameID = self.currentGameIndex
+        listener.gameID = gameID
+        self.channelObjs[channelID].Send({"action": "openRoom", "gameID": gameID})
         self.waitGames[gameID] = level
-        self.games[gameID] = Game(self.currentChannel, self.currentIndex, level)
-        self.currentIndex += 1
+        self.games[gameID] = GameJudge(self.channelObjs[channelID], self.currentGameIndex, level)
+        self.currentGameIndex += 1
         print self.waitGames
     
     def joinRoom(self, gameID):
@@ -101,12 +113,16 @@ class BoxesServer(PodSixNet.Server.Server):
     def placeLine(self, x, y, h, gameID, order):
         print x, y
 
-    def getRooms(self):
+    def getRooms(self, channelID):
+        print channelID
+        print self.channelObjs
         print self.waitGames
-        self.currentChannel.Send({"action": "setRooms", "rooms": self.waitGames})
+        channel = self.channelObjs[channelID]
+        print channel
+        channel.Send({"action": "setRooms", "rooms": self.waitGames})
 
-class Game:
-    def __init__(self, player0, currentIndex, level):
+class GameJudge:
+    def __init__(self, player0, currentGameIndex, level):
         
 # whose turn (1 or 0)
         self.turn = 0
@@ -122,7 +138,7 @@ class Game:
         self.player1 = None
         
 #gameID of game
-        self.gameID = currentIndex
+        self.gameID = currentGameIndex
 
 print ("STARTING SERVER ON LOCALHOST")
 # boxesServe = BoxesServer()

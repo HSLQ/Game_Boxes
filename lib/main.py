@@ -29,7 +29,7 @@ class Main(object):
         self.state = STATE.menu
         self.running = True
         self.level = SETLEVEL["DEFAULT_LEVEL"]
-        self.clientID = None
+        self.channelID = None
 
     def initObj(self):
         # 设置大小，用于背景图片的缩放
@@ -48,6 +48,7 @@ class Main(object):
 
     def linkSuccess(self):
         print "link success"
+        print self.channelID
 
     def enterMatching(self):
         self.matching.getRooms()

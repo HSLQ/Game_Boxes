@@ -32,7 +32,7 @@ class GameNet(ConnectionListener):
     # 开启新的游戏房间
     def openRoom(self, level):
         print "open room"
-        self.Send({"action": "openRoom", "level": level})
+        self.Send({"action": "openRoom", "level": level, "channelID": self.controller.channelID})
 
     def placeLine(self, x, y, h, gameID, order):
         print "place line"
@@ -40,8 +40,9 @@ class GameNet(ConnectionListener):
 
     def getRooms(self, matching):
         print "refresh room"
+        print self.controller.channelID
         self.rooms = None
-        self.Send({"action": "getRooms"})
+        self.Send({"action": "getRooms", "channelID": self.controller.channelID})
         rec = 0
         startTime = time.time()
         while (self.rooms == None):
@@ -57,9 +58,9 @@ class GameNet(ConnectionListener):
         matching.rooms = self.rooms
         return True
 
-    def Network_setClientID(self, data):
-        clientID = data["clientID"]
-        self.controller.clientID = clientID
+    def Network_setChannelID(self, data):
+        channelID = data["channelID"]
+        self.controller.channelID = channelID
         self.controller.linkSuccess()
 
     def Network_openRoom(self, data):
