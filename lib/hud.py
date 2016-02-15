@@ -20,6 +20,7 @@ class Hud(object):
         self.width = HUD["HUD_WIDTH"]
         self.height = height
         self.x, self.y = x, y
+        self.started = False
 
     def initElement(self):
         # 背景
@@ -28,7 +29,7 @@ class Hud(object):
         self.background.setColor(backgroundImg)
 
         # 回合指示
-        self.mark = CenteredImage(HUD["GREEN_PILOT_LAMP"], (HUD["LAMP_WIDTH"], HUD["LAMP_HEIGHT"]), (self.width - 20, self.height / 2))
+        self.setMark(False)
         offSetLeft = HUD["MARK_TEXT_FONTS"].size(HUD["MARK_TEXT_CONTENT"])[0] / 2
         self.markText = CenteredText(HUD["MARK_TEXT_FONTS"], HUD["MARK_TEXT_CONTENT"], (offSetLeft + 10, self.height / 2 - 3))
 
@@ -41,11 +42,22 @@ class Hud(object):
             HUD["MY_SCORE_LABEL_CONTENT"], 
             (myLabelOffSetLeft + HUD["MY_SCORE_LABEL_OFFSET_LEFT"], 
                 myLabelOffSetTop + HUD["MY_SCORE_LABEL_OFFSET_TOP"]))
-        [otherLabelOffSetLeft, otherLabelOffSetTop] = [var / 2 for var in HUD["LABEL_FONTS"].size(HUD["OTHER_SCORE_LABEL_CONTENT"])]
-        self.otherScoreLabel = CenteredText(HUD["LABEL_FONTS"], 
-            HUD["OTHER_SCORE_LABEL_CONTENT"], 
-            (myLabelOffSetLeft + HUD["OTHER_SCORE_LABEL_OFFSET_LEFT"], 
-                self.height - otherLabelOffSetTop - HUD["OTHER_SCORE_LABEL_OFFSET_BOTTOM"]))
+        otherLabelOffSet = HUD["WAIT_BATTLE_LABEL_FONT"].size(HUD["WAIT_BATTLE_LABEL_CONTENT"])
+        [otherLabelOffSetLeft, otherLabelOffSetBottom] = [
+        self.x + otherLabelOffSet[0] / 2. + 
+            HUD["WAIT_BATTLE_LABEL_OFFSET_LEFT"],
+        self.y + otherLabelOffSet[1] / 2. + 
+            HUD["WAIT_BATTLE_LABEL_OFFSET_BOTTOM"]
+        ]
+        self.otherScoreLabel = CenteredText(HUD["WAIT_BATTLE_LABEL_FONT"], 
+            HUD["WAIT_BATTLE_LABEL_CONTENT"], 
+            (otherLabelOffSetLeft, self.height - otherLabelOffSetBottom))
+
+    def setMark(self, Turn):
+        if Turn:
+             self.mark = CenteredImage(HUD["GREEN_PILOT_LAMP"], (HUD["LAMP_WIDTH"], HUD["LAMP_HEIGHT"]), (self.width - 20, self.height / 2))
+        else:
+             self.mark = CenteredImage(HUD["RED_PILOT_LAMP"], (HUD["LAMP_WIDTH"], HUD["LAMP_HEIGHT"]), (self.width - 20, self.height / 2))
 
     def setScore(self, myScore, otherScore):
         self.myScore, self.otherScore = myScore, otherScore
@@ -55,16 +67,28 @@ class Hud(object):
         [otherScoreOffSetLeft, otherScoreOffSetTop] = [var / 2 for var in HUD["MARK_TEXT_FONTS"].size(str(otherScore))]
         self.otherScoreText = CenteredText(HUD["SCORE_TEXT_FONTS"], str(myScore), (otherScoreOffSetLeft + HUD["OTHER_SCORE_TEXT_OFFSET_LEFT"], self.height - otherScoreOffSetTop - HUD["OTHER_SCORE_TEXT_OFFSET_BOTTOM"]))
 
+    def startGame(self):
+        self.started = True
+        [otherLabelOffSetLeft, otherLabelOffSetTop] = [var / 2 for var in HUD["LABEL_FONTS"].size(HUD["OTHER_SCORE_LABEL_CONTENT"])]
+        self.otherScoreLabel = CenteredText(HUD["LABEL_FONTS"], 
+            HUD["OTHER_SCORE_LABEL_CONTENT"], 
+            (myLabelOffSetLeft + HUD["OTHER_SCORE_LABEL_OFFSET_LEFT"], 
+                self.height - otherLabelOffSetTop - HUD["OTHER_SCORE_LABEL_OFFSET_BOTTOM"]))
+
+    def drawScore(self, screen):
+        self.myScoreText.draw(screen)
+        if self.started:
+            self.otherScoreText.draw(screen)
+
+        self.myScoreLabel.draw(screen)
+        self.otherScoreLabel.draw(screen)
+
     def draw(self, screen):
         # screen.set_clip(self.x, self.y, self.width, self.height)
         self.background.draw(screen)
         self.mark.draw(screen)
         self.markText.draw(screen)
 
-        self.myScoreText.draw(screen)
-        self.otherScoreText.draw(screen)
-
-        self.myScoreLabel.draw(screen)
-        self.otherScoreLabel.draw(screen)
+        self.drawScore(screen)
 
         

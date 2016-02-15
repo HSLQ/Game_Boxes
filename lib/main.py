@@ -12,6 +12,7 @@ from game import Game
 from matching import Matching
 import pygame
 from pygame.locals import *
+from PodSixNet.Connection import ConnectionListener, connection
 
 class Main(object):
     """main loop of the game"""

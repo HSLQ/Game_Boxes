@@ -30,6 +30,13 @@ class Enum(set):
 
 STATE = Enum(['menu', 'game', 'setLevel', 'rules', 'matching', 'exit'])
 
+# 网络
+
+NETWORK = {
+    "HOST": "localhost",
+    "PORT": 8000
+}
+
 # 游戏规则 rules
 RULES_CONTENT = [
 u"两人轮流采取行动", 
@@ -144,6 +151,10 @@ HUD = {
 
     "SCORE_TEXT_FONTS": FONT_CHILD30,
 
+    "WAIT_BATTLE_LABEL_FONT": FONT_CINDY_AFTERNOON25,
+    "WAIT_BATTLE_LABEL_CONTENT": u"等待对手",
+    "WAIT_BATTLE_LABEL_OFFSET_LEFT": 7,
+    "WAIT_BATTLE_LABEL_OFFSET_BOTTOM": 50,
     "LABEL_FONTS": FONT_CHILD20,
     "MY_SCORE_LABEL_CONTENT": u"我的分数",
     "MY_SCORE_LABEL_OFFSET_TOP": 70,

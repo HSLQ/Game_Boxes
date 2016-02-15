@@ -37,6 +37,9 @@ class Board(object):
         self.background = Background((self.width, self.height), (posX, posY))
         self.squareSideLength = self.stickLength + self.separatorLength
         self.justPlaced = BOARD["JUST_PLACED"]
+        self.setTurn(True)
+
+    def setTurn(self, turn):
         self.turn = True
 
     def initBoardArray(self):
@@ -121,10 +124,13 @@ class Board(object):
         vPos = vPos - 1 if vPos > 0 and mousePos[1] - vPos * self.squareSideLength < 0 and not is_horizontal else vPos
         hPos = hPos - 1 if vPos > 0 and mousePos[0] - hPos * self.squareSideLength < 0 and is_horizontal else hPos
 
+        if vPos < 0 or hPos < 0 or vPos > self.levelV or hPos > self.levelH:
+            return
+
         board = self.boardH if is_horizontal else self.boardV
         isOutOfBounds = False
         try:
-            if vPos > 0 and hPos > 0 and not board[vPos][hPos]: 
+            if not board[vPos][hPos]: 
                 screen.blit(self.doneLineImageH 
                     if is_horizontal 
                     else self.doneLineImageV, 
@@ -147,17 +153,17 @@ class Board(object):
 
 
         # 点击事件
-        if (pygame.mouse.get_pressed()[0] and not alreadyPlaced and not isOutOfBounds and self.turn == True and self.justPlaced <= 0):
+        ret = None
+        if (self.turn and pygame.mouse.get_pressed()[0] and not alreadyPlaced and not isOutOfBounds and self.turn == True and self.justPlaced <= 0):
             self.justPlaced = 10
             if (is_horizontal):
                 self.boardH[vPos][hPos] = True
-                # self.Send({"action": "place", "x":hPos, "y":vPos, "is_horizontal": is_horizontal, "gameID": self.gameID, "num": self.num})
+                ret = {"x":hPos, "y":vPos, "h": True}
             else:
                 self.boardV[vPos][hPos] = True
-                # self.Send({"action": "place", "x":hPos, "y":vPos, "is_horizontal": is_horizontal, "gameID": self.gameID, "num": self.num})
+                ret = {"x":hPos, "y":vPos, "h": False}
             self.isGetPoint(hPos, vPos, is_horizontal)
-        
-
+        return ret
 
     def draw(self, screen):
         # screen.set_clip(self.x, self.y, self.width, self.height)
@@ -165,6 +171,6 @@ class Board(object):
             self.justPlaced -= 1
         self.background.draw(screen)
         self.drawBoard(screen)
-        self.mouseEvent(screen)
+        return self.mouseEvent(screen)
 
 
