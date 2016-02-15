@@ -12,7 +12,7 @@ from text import Text
 class CenteredImage(object):
     '''Centered Image Class'''
     # Constructror
-    def __init__(self, imagePath, (x, y), (width, height)):
+    def __init__(self, imagePath, (width, height), (x, y)):
         # super(CenteredImage, self).__init__()
 
         if isinstance(imagePath, str):

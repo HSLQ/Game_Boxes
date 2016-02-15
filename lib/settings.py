@@ -161,7 +161,11 @@ HUD = {
 }
 
 # 按钮
+
+BUTTON = {
+    "BUTTON_JUST_CLICKED": 3,
+}
+ 
 TEXTBUTTON = {
     "BUTTON_TEXT_PADDING": 5,
-    "BUTTON_JUST_CLICKED": 5,
 }

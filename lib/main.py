@@ -55,16 +55,12 @@ class Main(object):
             exit()
 
         elif STATE.setLevel == self.state:
-            self.setLevel.draw(self.screen)
-
-            var = self.setLevel.clickListener()
-            if isinstance(var, str):
-                self.state = var
-            elif isinstance(var, Game):
+            var = self.setLevel.draw(self.screen)
+            if isinstance(var, Game):
                 self.game = var
                 self.state = STATE.game
             else:
-                raise TypeError, var
+                self.state = var
 
         elif STATE.game == self.state:
             self.state = self.game.draw()

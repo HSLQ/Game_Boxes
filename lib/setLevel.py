@@ -9,6 +9,7 @@ from background import Background
 from textButton import TextButton
 from centeredText import CenteredText
 from centeredImage import CenteredImage
+from imageButton import ImageButton
 from game import Game
 import pygame
 
@@ -44,10 +45,12 @@ class SetLevel(object):
 
         levelImageOffTop = 300
         coordX, coordY = self.width / 2, levelImageOffTop
-        self.rArrow = CenteredImage(self.arrowImgRight, (coordX + 80, coordY - 10), (arrowSize, arrowSize))
-        self.lArrow = CenteredImage(pygame.transform.flip(self.arrowImgRight, True, True), (coordX - 80, coordY - 10), (arrowSize, arrowSize))
+        self.rArrow = ImageButton(self.arrowImgRight, (arrowSize, arrowSize), (coordX + 80, coordY - 10))
+        self.lArrow = ImageButton(pygame.transform.flip(self.arrowImgRight, True, True), (arrowSize, arrowSize), (coordX - 80, coordY - 10))
 
     def setLevel(self, level = SETLEVEL["DEFAULT_LEVEL"]):
+        if not isinstance(level, int):
+            level = level[0]
         if (level > SETLEVEL["MAX_LEVEL"]):
             level = SETLEVEL["MAX_LEVEL"]
         if (level < SETLEVEL["MIN_LEVEL"]):
@@ -63,29 +66,16 @@ class SetLevel(object):
         self.lArrow.draw(screen)
 
     def draw(self, screen):
-        if (self.justClicked > 0):
-            self.justClicked -= 1
         self.background.draw(screen)
         self.titleText.draw(screen)
-
         self.drawLevelSet(screen)
-
         self.beginButton.draw(screen)
         self.returnButton.draw(screen)
-
-    def clickListener(self):
-        if (pygame.mouse.get_pressed()[0]):
-            mousePos = pygame.mouse.get_pos()
-            if self.beginButton.rect.collidepoint(mousePos):
-                return Game(self.level)
-            elif self.returnButton.rect.collidepoint(mousePos):
-                return STATE.menu
-            elif self.rArrow.rect.collidepoint(mousePos) and 0 == self.justClicked:
-                self.setLevel(self.level + 1)
-            elif self.lArrow.rect.collidepoint(mousePos) and 0 == self.justClicked:
-                self.setLevel(self.level - 1)
-            self.justClicked = SETLEVEL["JUST_CLICKED"]
-        return STATE.setLevel
+        retGame = self.beginButton.click(lambda : Game(self.level))
+        ret = self.returnButton.click(lambda : STATE.menu)
+        self.rArrow.click(self.setLevel, self.level + 1)
+        self.lArrow.click(self.setLevel, self.level - 1)
+        return retGame if retGame != None else ret if STATE.menu == ret else STATE.setLevel
 
         
         

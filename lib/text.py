@@ -10,7 +10,7 @@ import pygame
 class Text(object):
     """Text class for easy to drawing"""
     def __init__(self, font, text, (x, y), color = (255, 255, 255)):
-        super(Text, self).__init__()
+        # super(Text, self).__init__()
         self.color = color
 
         pygame.font.init()

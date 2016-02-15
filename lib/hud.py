@@ -28,7 +28,7 @@ class Hud(object):
         self.background.setColor(backgroundImg)
 
         # 回合指示
-        self.mark = CenteredImage(HUD["GREEN_PILOT_LAMP"], (self.width - 20, self.height / 2), (HUD["LAMP_WIDTH"], HUD["LAMP_HEIGHT"]))
+        self.mark = CenteredImage(HUD["GREEN_PILOT_LAMP"], (HUD["LAMP_WIDTH"], HUD["LAMP_HEIGHT"]), (self.width - 20, self.height / 2))
         offSetLeft = HUD["MARK_TEXT_FONTS"].size(HUD["MARK_TEXT_CONTENT"])[0] / 2
         self.markText = CenteredText(HUD["MARK_TEXT_FONTS"], HUD["MARK_TEXT_CONTENT"], (offSetLeft + 10, self.height / 2 - 3))
 

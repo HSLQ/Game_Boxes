@@ -7,7 +7,7 @@ import pygame
 from util import getFilePath
 from text import Text
 
-class CenteredText(Text):
+class CenteredText(Text, object):
     '''Centered Text Class'''
     # Constructror
     def __init__(self, font, text, (x, y), color = (255, 255, 255)):

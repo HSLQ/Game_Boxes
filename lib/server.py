@@ -8,8 +8,6 @@ import PodSixNet.Channel
 import PodSixNet.Server
 from time import sleep
 
-import settings.py
-
 class ClientChannel(PodSixNet.Channel.Channel):
     def Network(self, data):
         print (data)
@@ -34,8 +32,8 @@ class ClientChannel(PodSixNet.Channel.Channel):
         self.level = data["level"]
         self._server.setLevel(gameID, level)
 
-    def Close(self):
-        self._server.close(self.gameID)
+    # def Close(self):
+    #     self._server.close(self.gameID)
 
 class BoxesServer(PodSixNet.Server.Server):
     def __init__(self, *args, **kwargs):
