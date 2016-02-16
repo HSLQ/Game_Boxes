@@ -3,7 +3,7 @@
 
 __author__ = 'Piratf'
 
-from settings import GAME, BOARD, STATE
+from settings import GAME, HUD, STATE
 from textButton import TextButton
 from centeredImage import CenteredImage
 from background import Background
@@ -20,23 +20,24 @@ class Game(object):
         self.initAttr(level)
         self.initElement()
 
-    def setLevel():
-        pass
+    def setLevel(self, level):
+        self.boardWidth, self.boardHeight = self.board.setLevel(level)
+        self.height = self.boardHeight + self.edgeWidth * 2
+        self.width = self.boardWidth + self.hudWidth
+        self.initContext()
 
     def initAttr(self, level):
+        self.hudWidth = HUD["HUD_WIDTH"]
+        self.edgeWidth = GAME["EDGE_WIDTH"]
         self.turn = True
         self.level = level
-        self.edgeWidth = GAME["EDGE_WIDTH"]
-        self.height = BOARD["BOARD_HEIGHT"] + self.edgeWidth * 2
+        self.board = Board((self.hudWidth, self.edgeWidth))
+        self.height = self.board.height + self.edgeWidth * 2
+        self.width = self.board.width + self.hudWidth
         # 根据窗口高度设置 HUD 高度
         self.hud = Hud((0, self.height), (0, 0))
         self.hud.setMark(self.turn)
-        # 根据游戏等级建立棋盘
-        self.board = Board(level, (self.hud.width, self.edgeWidth))
         self.board.setTurn(self.turn)
-
-        self.width = self.board.width + self.hud.width
-
         self.gameID = 0
         self.order = None
 
@@ -53,20 +54,33 @@ class Game(object):
         pygame.display.set_caption("Boxes")
         self.clock = pygame.time.Clock();
 
-    def openRoom(self):
-        print "open room"
-        self.controller.gameNet.openRoom(self.level)
-
     def leaveServer(self, *args):
         self.controller.gameNet.leaveServer(self.gameID)
         return STATE.menu
 
     def placeLine(self, data):
-        self.controller.gameNet.placeLine(data, self.gameID, self.order)
+        if self.hud.started:
+            self.controller.gameNet.placeLine(data, self.gameID, self.order)
 
     def setTurn(self, turn):
         self.hud.setMark(turn)
         self.board.setTurn(turn)
+
+    def setHome(self):
+        self.order = 0
+        self.board.setHome()
+        self.background.setColor(GAME["HOME_COLOR"])
+
+    def setAway(self):
+        self.order = 1
+        self.board.setAway()
+        self.background.setColor(GAME["AWAY_COLOR"])
+
+    def addScore(self):
+        self.hud.addScore()
+
+    def enemyAddScore(self):
+        self.hud.enemyAddScore()
 
     # 对手玩家进入游戏
     def enemyComming(self, turn):
@@ -90,7 +104,7 @@ class Game(object):
             self.board.placeLine(x, y, h, point, False)
 
     def draw(self):
-        self.screen.set_clip(None)
+        # self.screen.set_clip(None)
         self.background.draw(self.screen)
         ret = self.board.draw(self.screen)
         if ret != None:

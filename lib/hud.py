@@ -21,6 +21,8 @@ class Hud(object):
         self.height = height
         self.x, self.y = x, y
         self.started = False
+        self.myScore = 0
+        self.otherScore = 0
 
     def initElement(self):
         # 背景
@@ -34,7 +36,7 @@ class Hud(object):
         self.markText = CenteredText(HUD["MARK_TEXT_FONTS"], HUD["MARK_TEXT_CONTENT"], (offSetLeft + 10, self.height / 2 - 3))
 
         # 得分，默认 0 分开始
-        self.setScore(0, 0)
+        self.setScore()
 
         # 两块 label
         [myLabelOffSetLeft, myLabelOffSetTop] = [var / 2 for var in HUD["LABEL_FONTS"].size(HUD["MY_SCORE_LABEL_CONTENT"])]
@@ -50,13 +52,21 @@ class Hud(object):
         else:
              self.mark = CenteredImage(HUD["RED_PILOT_LAMP"], (HUD["LAMP_WIDTH"], HUD["LAMP_HEIGHT"]), (self.width - 20, self.height / 2))
 
-    def setScore(self, myScore, otherScore):
+    def setScore(self, myScore = 0, otherScore = 0):
         self.myScore, self.otherScore = myScore, otherScore
         # 根据分数内容即时计算位置
         [myScoreOffSetLeft, myScoreOffSetTop] = [var / 2 for var in HUD["MARK_TEXT_FONTS"].size(str(myScore))]
-        self.myScoreText = CenteredText(HUD["SCORE_TEXT_FONTS"], str(myScore), (myScoreOffSetLeft + HUD["MY_SCORE_TEXT_OFFSET_LEFT"], myScoreOffSetTop + HUD["MY_SCORE_TEXT_OFFSET_TOP"]))
+        self.myScoreText = CenteredText(HUD["SCORE_TEXT_FONTS"], str(self.myScore), (myScoreOffSetLeft + HUD["MY_SCORE_TEXT_OFFSET_LEFT"], myScoreOffSetTop + HUD["MY_SCORE_TEXT_OFFSET_TOP"]))
         [otherScoreOffSetLeft, otherScoreOffSetTop] = [var / 2 for var in HUD["MARK_TEXT_FONTS"].size(str(otherScore))]
-        self.otherScoreText = CenteredText(HUD["SCORE_TEXT_FONTS"], str(myScore), (otherScoreOffSetLeft + HUD["OTHER_SCORE_TEXT_OFFSET_LEFT"], self.height - otherScoreOffSetTop - HUD["OTHER_SCORE_TEXT_OFFSET_BOTTOM"]))
+        self.otherScoreText = CenteredText(HUD["SCORE_TEXT_FONTS"], str(self.otherScore), (otherScoreOffSetLeft + HUD["OTHER_SCORE_TEXT_OFFSET_LEFT"], self.height - otherScoreOffSetTop - HUD["OTHER_SCORE_TEXT_OFFSET_BOTTOM"]))
+
+    def addScore(self):
+        self.setScore(self.myScore + 1, self.otherScore)
+        print self.myScore, self.otherScore
+
+    def enemyAddScore(self):
+        self.setScore(self.myScore, self.otherScore + 1)
+        print self.myScore, self.otherScore
 
     def initWaitingLabel(self):
         otherLabelOffSet = HUD["WAIT_BATTLE_LABEL_FONT"].size(HUD["WAIT_BATTLE_LABEL_CONTENT"])

@@ -135,8 +135,18 @@ class GameNet(ConnectionListener):
 
     # data: {"action": "drawGame"}
     def Network_drawGame(self, data):
-        print draw
+        print "draw"
         self.controller.drawGame()
+
+    # data: {"action":"addScore"}
+    def Network_addScore(self, data):
+        print "add score"
+        self.controller.addScore();
+
+    # data: {"action":"enemyAddScore"})
+    def Network_enemyAddScore(self, data):
+        print "enemy add score"
+        self.controller.enemyAddScore()
 
     def exit(self):
         self.controller.exit()

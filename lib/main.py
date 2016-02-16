@@ -60,16 +60,17 @@ class Main(object):
         self.matching.getRooms()
 
     def enemyComming(self, turn, gameID):
-        self.game.order = 0
         self.gameID = gameID
         self.game.enemyComming(turn)
+        self.game.setHome()
 
     def joinGame(self, level, gameID, turn):
         self.game = Game(level, self)
         self.game.gameID = gameID
-        self.game.order = 1
         self.state = STATE.game
+        self.game.setLevel(level)
         self.game.enemyComming(turn)
+        self.game.setAway()
 
     def enterMenu(self):
         self.state = STATE.menu
@@ -78,15 +79,25 @@ class Main(object):
     def enterGame(self, level):
         self.game.setLevel(level)
         self.game.initContext()
-        self.game.startedNewGame()
         self.state = STATE.game
 
-    def startedNewGame(self):
-        self.game.openRoom()
+    def startedNewGame(self, level):
+        print "open room", level
+        self.gameNet.openRoom(level)
 
     def leaveServer(self, gameID):
         self.gameNet.leaveServer(self.gameID)
         self.state = STATE.menu
+
+    def backToMenu(self):
+        self.initContext()
+        self.state = STATE.menu
+
+    def addScore(self):
+        self.game.addScore()
+
+    def enemyAddScore(self):
+        self.game.enemyAddScore()
 
     def update(self):
         self.clock.tick(60)
@@ -101,6 +112,7 @@ class Main(object):
             if (var in STATE):
                 self.state = var
             else:
+                self.startedNewGame(var)
                 self.enterGame(var)
 
         elif STATE.game == self.state:
@@ -120,7 +132,9 @@ class Main(object):
             self.state = self.rules.clickListener()
 
         elif STATE.finish == self.state:
-            self.state = self.finish.draw(self.screen)
+            var = self.finish.draw(self.screen)
+            if (var != STATE.finish):
+                self.backToMenu()
 
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):

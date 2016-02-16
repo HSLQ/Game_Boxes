@@ -111,6 +111,8 @@ PANEL = {
 GAME = {
     "EDGE_WIDTH": 40,
     "GAME_BACKGROUND_COLOR": (112, 242, 181),
+    "HOME_COLOR": (112, 242, 181),
+    "AWAY_COLOR": (238, 151, 53),
     # "RETURN_BUTTON_CONTENT": pygame.transform.flip(pygame.image.load(getFilePath("return.png")), True, False),
     "RETURN_BUTTON_FONTS": FONT_CINDY_AFTERNOON25,
     "RETURN_BUTTON_CONTENT": u"逃跑",

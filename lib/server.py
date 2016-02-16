@@ -239,10 +239,14 @@ class GameJudge:
     def addScore0(self):
         self.point += 1
         self.player0Score += 1
+        self.player0.Send({"action":"addScore"})
+        self.player1.Send({"action":"enemyAddScore"})
 
     def addScore1(self):
         self.point += 1
         self.player1Score += 1
+        self.player0.Send({"action":"enemyAddScore"})
+        self.player1.Send({"action":"addScore"})
 
 print ("STARTING SERVER ON LOCALHOST")
 # boxesServe = BoxesServer()

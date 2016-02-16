@@ -10,34 +10,41 @@ import math
 
 class Board(object):
     """board for playing"""
-    def __init__(self, level, (posX, posY)):
+    def __init__(self, (posX, posY)):
         # super(Board, self).__init__()
-        self.initAttr(level, (posX, posY))
+        self.initAttr((posX, posY))
         self.initBoardArray()
 
-    def initAttr(self, level, (posX, posY)):
+    def initAttr(self, (posX, posY)):
         self.width, self.height = BOARD["BOARD_WIDTH"], BOARD["BOARD_HEIGHT"]
-        self.levelH = level
-        self.levelV = level
-        self.stickLength = BOARD["STICK_LENGTH"]
-        self.separatorLength = BOARD["SEPARATOR_LENGTH"]
+        self.stickLength = int(BOARD["STICK_LENGTH"])
+        self.separatorLength = int(BOARD["SEPARATOR_LENGTH"])
         self.separatorImage = BOARD["SEPARATOR_IMAGE"]
         self.normalLineImageV = BOARD["STICK_NOR_IMAGE"]
         self.normalLineImageH = pygame.transform.rotate(self.normalLineImageV, -90)
         self.doneLineImageV = BOARD["STICK_DONE_IMAGE"]
         self.doneLineImageH = pygame.transform.rotate(self.doneLineImageV, -90)
-        self.getRealSize(level)
         self.x, self.y = posX, posY
 
-        self.greenplayer = pygame.transform.scale(BOARD["GREEN_SQUARE"], (self.stickLength, self.stickLength))
-        self.yellowplayer = pygame.transform.scale(BOARD["YELLOW_SQUARE"], (self.stickLength, self.stickLength))
-        self.marker = self.greenplayer
-        self.othermarker = self.yellowplayer
+        self.greenplayerBase = BOARD["GREEN_SQUARE"]
+        self.yellowplayerBase = BOARD["YELLOW_SQUARE"]
+        self.marker = self.greenplayerBase
+        self.othermarker = self.yellowplayerBase
 
-        self.background = Background((self.width, self.height), (posX, posY))
-        self.squareSideLength = self.stickLength + self.separatorLength
+        self.background = Background((self.width, self.height), (self.x, self.y))
         self.justPlaced = BOARD["JUST_PLACED"]
         self.setTurn(True)
+        self.setLevel()
+
+    def setLevel(self, level = 6):
+        print "set level", level
+        self.levelH = level
+        self.levelV = level
+        self.setTurn(True)
+        self.getRealSize(level)
+        self.width = self.levelH * self.squareSideLength + self.separatorLength
+        self.height = self.levelV * self.squareSideLength + self.separatorLength
+        return self.getRealSize(level)
 
     def setTurn(self, turn):
         self.turn = turn
@@ -49,13 +56,25 @@ class Board(object):
         self.ownerBoard = [[0 for x in range(self.levelH)] for y in range(self.levelV)]
 
     def getRealSize(self, level):
+        print "get real size"
+        self.initBoardArray()
         self.stickLength = (int(math.ceil(((self.width - self.separatorLength) / level))) - self.separatorLength)
         self.normalLineImageH = pygame.transform.scale(self.normalLineImageH, (self.stickLength, self.separatorLength))
         self.normalLineImageV = pygame.transform.scale(self.normalLineImageV, ( self.separatorLength, self.stickLength))
         self.doneLineImageH = pygame.transform.scale(self.doneLineImageH, (self.stickLength, self.separatorLength))
         self.doneLineImageV = pygame.transform.scale(self.doneLineImageV, ( self.separatorLength, self.stickLength))
+
+        self.greenplayer = pygame.transform.scale(self.greenplayerBase, (self.stickLength, self.stickLength))
+        self.yellowplayer = pygame.transform.scale(self.yellowplayerBase, (self.stickLength, self.stickLength))
+
+        self.marker = self.greenplayer
+        self.othermarker = self.yellowplayer
+
         self.width = (self.stickLength + self.separatorLength) * self.levelH + self.separatorLength
         self.height = (self.stickLength + self.separatorLength) * self.levelV + self.separatorLength
+        self.squareSideLength = self.stickLength + self.separatorLength
+        self.background = Background((self.width, self.height), (self.x, self.y))
+        return self.width, self.height
 
     def getSquarePosH(self, h, v):
         return [self.x + h * self.squareSideLength + self.separatorLength, self.y + v * self.squareSideLength]
@@ -89,6 +108,7 @@ class Board(object):
     def getOwnerPostion(self, h, v):
         return (self.x + h * self.squareSideLength + self.separatorLength, self.y + v * self.squareSideLength + self.separatorLength)
 
+    # 绘制得分方块
     def drawOwnerMap(self, screen):
         for v in range(self.levelV):
             for h in range(self.levelH):
@@ -183,6 +203,14 @@ class Board(object):
                 self.ownerBoard[point["y"]][point["x"]] = "win"
             else:
                 self.ownerBoard[point["y"]][point["x"]] = "lose"
+
+    def setHome(self):
+        self.marker = self.greenplayer
+        self.othermarker = self.yellowplayer
+
+    def setAway(self):
+        self.marker = self.yellowplayer
+        self.othermarker = self.greenplayer
 
     def draw(self, screen):
         # screen.set_clip(self.x, self.y, self.width, self.height)
