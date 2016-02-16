@@ -112,15 +112,13 @@ class BoxesServer(PodSixNet.Server.Server):
             awayChannel = None
 
         currentGame = self.games[gameID]
-        # 主场客户端对象
-        homeChannel = currentGame.player0
-        homeChannel.gameID = gameID
-
         level = currentGame.level
+
+        # 主场玩家
+        homeChannel = currentGame.player0
 
         # 设置客场玩家
         currentGame.player1 = awayChannel
-        awayChannel.gameID = gameID
         homeChannel.Send({"action": "enemy", "turn": currentGame.turn, "gameID": gameID, "level": level})
         awayChannel.Send({"action": "joined", "turn": not currentGame.turn, "gameID": gameID, "level": level})
 
@@ -159,30 +157,48 @@ class BoxesServer(PodSixNet.Server.Server):
             self.waitGames[gameID] = game.level
             game.player1.Send({"action": "flee"})
             game.player0.Send({"action": "restart"})
+            game.player1 = None
 
     def placeLine(self, x, y, h, point, gameID, order):
         print "server"
         game = self.games[gameID]
-        # 出现得分
+        # 出现有玩家得分
         if point != None:
             vPos = int(point["y"])
             hPos = int(point["x"])
-            print vPos, hPos
+            print "getScore: ", vPos, hPos
+            # 系统棋盘记录得分
             game.owner[vPos][hPos] = True
+            # 系统玩家得分 
             if 0 == order:
                 game.addScore0()
             else:
                 game.addScore1()
+            # 玩家得分时可以再进行一个回合
+            game.turn = not game.turn
         home = game.player0
         away = game.player1
         game.turn = not game.turn
         home.Send({"action":"place", "turn": game.turn, "x": x, "y": y, "h": h, "point": point, "order": order})
         if away != None:
             away.Send({"action":"place", "turn": not game.turn, "x": x, "y": y, "h": h, "point": point, "order": order})
+        # 判断胜负逻辑
         if game.win():
             if (game.player0Score > game.player1Score):
-                
-
+                print gameID, "player0 win"
+                # 主场玩家胜利
+                game.player0.Send({"action": "youwin"})
+                # 客场玩家胜利
+                game.player1.Send({"action": "youlose"})
+            elif (game.player1Score > game.player0Score):
+                print gameID, "player1 win"
+                game.player0.Send({"action": "youlose"})
+                game.player1.Send({"action": "youwin"})
+            else:
+                # 平局
+                print gameID, "drawGame"
+                game.player0.Send({"action": "drawGame"})
+                game.player1.Send({"action": "drawGame"})
 
     def getRooms(self, channelID):
         print channelID
@@ -221,9 +237,11 @@ class GameJudge:
         return self.point >= self.level * self.level
 
     def addScore0(self):
+        self.point += 1
         self.player0Score += 1
 
     def addScore1(self):
+        self.point += 1
         self.player1Score += 1
 
 print ("STARTING SERVER ON LOCALHOST")

@@ -19,7 +19,9 @@ class Game(object):
         self.controller = controller
         self.initAttr(level)
         self.initElement()
-        self.initContext()
+
+    def setLevel():
+        pass
 
     def initAttr(self, level):
         self.turn = True
@@ -69,6 +71,7 @@ class Game(object):
     # 对手玩家进入游戏
     def enemyComming(self, turn):
         self.setTurn(turn)
+        self.board.restart()
         self.hud.startGame()
 
     def newHost(self):

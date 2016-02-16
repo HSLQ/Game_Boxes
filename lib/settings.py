@@ -28,7 +28,7 @@ class Enum(set):
             return name
         raise AttributeError
 
-STATE = Enum(['menu', 'game', 'setLevel', 'rules', 'matching', 'exit'])
+STATE = Enum(['menu', 'game', 'setLevel', 'rules', 'matching', 'finish', 'exit'])
 
 # 网络
 
@@ -62,7 +62,7 @@ SETLEVEL = {
     
     "DEFAULT_LEVEL" : 6,
     "MAX_LEVEL" : 9,
-    "MIN_LEVEL" : 5,
+    "MIN_LEVEL" : 1,
     "LEVEL_FONTS" : pygame.font.Font(getFilePath("Mf_Kings_Queens.ttf"), 80),
     "ARROW_SIZE" : 60,
     
@@ -179,4 +179,15 @@ BUTTON = {
  
 TEXTBUTTON = {
     "BUTTON_TEXT_PADDING": 5,
+}
+
+# 胜负界面
+FINISH = {
+    "WIN_BACKGROUND_IMG": pygame.image.load(getFilePath("youwin_cn.png")),
+    "LOST_BACKGROUND_IMG": pygame.image.load(getFilePath("gameover_cn.png")),
+    "DRAW_BACKGROUND_IMG": pygame.image.load(getFilePath("draw_cn.png")),
+
+    "RETURN_BUTTON_CONTENT": u"返回主菜单",
+    "RETURN_BUTTON_FONT": FONT_CHILD20,
+    "RETURN_BUTTON_OFFSET_CENTER_HEIGHT": 50
 }

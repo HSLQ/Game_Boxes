@@ -102,7 +102,8 @@ class GameNet(ConnectionListener):
     # data: {"action": "enemy","turn": True, "gameID": gameID, "level": level}
     def Network_enemy(self, data):
         turn = data["turn"]
-        self.controller.enemyComming(turn)
+        gameID = data["gameID"]
+        self.controller.enemyComming(turn, gameID)
 
     # data: {"action": "joined","turn": False, "gameID": gameID, "level": level}
     def Network_joined(self, data):
@@ -123,6 +124,19 @@ class GameNet(ConnectionListener):
         point = data["point"]
         order = data["order"]
         self.controller.game.placeLineAnswer(turn, x, y, h, point, order)
+
+    def Network_youwin(self, data):
+        print "winning"
+        self.controller.winning()
+
+    def Network_youlose(self, data):
+        print "lost"
+        self.controller.lost()
+
+    # data: {"action": "drawGame"}
+    def Network_drawGame(self, data):
+        print draw
+        self.controller.drawGame()
 
     def exit(self):
         self.controller.exit()

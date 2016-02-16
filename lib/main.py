@@ -11,6 +11,7 @@ from rules import Rules
 from game import Game
 from matching import Matching
 from gameNet import GameNet
+from finish import Finish
 import pygame
 from pygame.locals import *
 from time import sleep
@@ -40,7 +41,11 @@ class Main(object):
         self.rules = Rules(self.width, self.height)
         self.setLevel = SetLevel(self.width, self.height)
         self.matching = Matching((self.width, self.height), self)
+        self.game = Game(6, self)
+        # finish 界面的大小和游戏界面一样
+        self.finish = Finish((self.game.width, self.game.height))
 
+    # 绘制游戏主窗体
     def initContext(self):
         self.screen = pygame.display.set_mode((self.width, self.height), DOUBLEBUF)
         pygame.display.set_caption("Boxes")
@@ -54,8 +59,9 @@ class Main(object):
     def enterMatching(self):
         self.matching.getRooms()
 
-    def enemyComming(self, turn):
+    def enemyComming(self, turn, gameID):
         self.game.order = 0
+        self.gameID = gameID
         self.game.enemyComming(turn)
 
     def joinGame(self, level, gameID, turn):
@@ -68,8 +74,19 @@ class Main(object):
     def enterMenu(self):
         self.state = STATE.menu
 
+    # 进入游戏界面事件
+    def enterGame(self, level):
+        self.game.setLevel(level)
+        self.game.initContext()
+        self.game.startedNewGame()
+        self.state = STATE.game
+
     def startedNewGame(self):
         self.game.openRoom()
+
+    def leaveServer(self, gameID):
+        self.gameNet.leaveServer(self.gameID)
+        self.state = STATE.menu
 
     def update(self):
         self.clock.tick(60)
@@ -84,9 +101,7 @@ class Main(object):
             if (var in STATE):
                 self.state = var
             else:
-                self.game = Game(var, self)
-                self.startedNewGame()
-                self.state = STATE.game
+                self.enterGame(var)
 
         elif STATE.game == self.state:
             self.state = self.game.draw()
@@ -104,6 +119,9 @@ class Main(object):
             self.rules.draw(self.screen)
             self.state = self.rules.clickListener()
 
+        elif STATE.finish == self.state:
+            self.state = self.finish.draw(self.screen)
+
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 if STATE.game == self.state:
@@ -115,9 +133,24 @@ class Main(object):
                 # exit()
             # if (event.type == pygame.KEYDOWN):
             #     if (event.key == pygame.K_ESCAPE):
-            #         exit()
+            #         exit() 
             #         pygame.quit()
         pygame.display.flip()
+
+    def winning(self):
+        self.finish.setWin(self.game.gameID)
+        self.enterFinish()
+
+    def lost(self):
+        self.finish.setLost(self.game.gameID)
+        self.enterFinish()
+
+    def drawGame(self):
+        self.finish.setDraw(self.game.gameID)
+        self.enterFinish()
+
+    def enterFinish(self):
+        self.state = STATE.finish
 
     def run(self):
         while self.running:
