@@ -99,6 +99,9 @@ class Main(object):
     def enemyAddScore(self):
         self.game.enemyAddScore()
 
+    def getRooms(self, matching, page, num):
+        self.gameNet.getRooms(matching, page, num)
+
     def update(self):
         self.clock.tick(60)
         self.screen.fill(0)

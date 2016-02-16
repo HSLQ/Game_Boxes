@@ -24,6 +24,7 @@ class Panel(object):
         self.cols = cols
         self.gapWidth = PANEL["GAP_WIDTH"]
         self.gapHeight = PANEL["GAP_HEIGHT"]
+        self.children = []
 
     def initElem(self):
         self.background = Background((self.width, self.height), (self.x, self.y))

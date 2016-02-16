@@ -13,6 +13,7 @@ WINDOW_HEIGHT = 600
 # 字体
 pygame.font.init()
 FONT_CINDY_AFTERNOON25 = pygame.font.Font(getFilePath("CindyAfternoonTea.ttf"), 25)
+FONT_KQ25 = pygame.font.Font(getFilePath("Mf_Kings_Queens.ttf"), 25)
 FONT_SYS_NONE = pygame.font.SysFont("simhei", 25)
 FONT_CHILD30 = pygame.font.Font(getFilePath("Child.ttf"), 30)
 FONT_CHILD20 = pygame.font.Font(getFilePath("Child.ttf"), 20)
@@ -69,8 +70,7 @@ SETLEVEL = {
     "JUST_CLICKED" : 3
 }
 
-# 房间 div
-
+# 房间
 ROOM = {
     "ROOM_ID_FONTS": FONT_CHILD20,
     "ROOM_ID_LABEL_CONTENT": u"房间编号:",
@@ -98,7 +98,13 @@ MATCHING = {
     "RETURN_BUTTON_OFFSET_BOTTOM": 30,
     "REFRESH_BUTTON_CONTENT": u"刷新",
     "REFRESH_BUTTON_OFFSET_RIGHT": 50,
-    "REFRESH_BUTTON_OFFSET_BOTTOM": 30
+    "REFRESH_BUTTON_OFFSET_BOTTOM": 30,
+
+    "PAGE_BUTTON_OFFSET_MIDDLE_LINE": 55,
+    "PAGE_BUTTON_OFFSET_BOTTOM": 76,
+    "PAGE_BUTTON_FONT": FONT_CHILD20,
+    "LAST_PAGE_BUTTON_CONTENT": u"上一页",
+    "NEXT_PAGE_BUTTON_CONTENT": u"下一页"
 }
 
 # panel 设置

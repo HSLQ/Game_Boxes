@@ -43,23 +43,26 @@ class GameNet(ConnectionListener):
         print "place line"
         self.Send(data)
 
-    def getRooms(self, matching):
+    def getRooms(self, matching, page, num):
         print "refresh room"
         print self.controller.channelID
         self.rooms = None
-        self.Send({"action": "getRooms", "channelID": self.controller.channelID})
+        self.Send({"action": "getRooms", "page": page, "num": num, "channelID": self.controller.channelID})
         rec = 0
         startTime = time.time()
+        matching.rooms = []
         while (self.rooms == None):
             self.pump()
             if (time.time() - startTime > 1) and rec < 3:
                 print "Network error, trying reconnecting"
                 self.connectToServer()
-                return self.getRooms(matching)
+                return self.getRooms(matching, page, num)
             if (rec > 3):
                 matching.rooms = []
                 return False
         matching.rooms = self.rooms
+        matching.hasLastPage = self.hasLastPage
+        matching.hasNextPage = self.hasNextPage
         return True
 
     def joinRoom(self, roomID):
@@ -91,12 +94,12 @@ class GameNet(ConnectionListener):
         self.hud.setMark(self.turn)
         self.hud.startGame()
 
-    # data: {"action": "setRooms", "rooms": waitGames}
+    # data: {"action": "setRooms", "rooms": rooms, "l": hasLastPage, "n": hasNextPage}
     def Network_setRooms(self, data):
         print "set rooms"
-        roomsDict = data["rooms"]
-        roomsList = [[k, v] for (k, v) in roomsDict.items()]
-        self.rooms = sorted(roomsList)
+        self.hasNextPage = data["n"]
+        self.hasLastPage = data["l"]
+        self.rooms = data["rooms"]
         print self.rooms
 
     # data: {"action": "enemy","turn": True, "gameID": gameID, "level": level}

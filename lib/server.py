@@ -5,6 +5,7 @@ __author__ = 'Piratf'
 
 import PodSixNet.Channel
 import PodSixNet.Server
+from sliceable_deque import sliceable_deque
 from time import sleep
 
 class ClientChannel(PodSixNet.Channel.Channel, object):
@@ -57,11 +58,13 @@ class ClientChannel(PodSixNet.Channel.Channel, object):
         channelID = data["channelID"]
         self._server.joinRoom(gameID, channelID, self)
 
-    # data: {"action": "getRooms", "channelID", channelID}
+    # data: {"action": "getRooms", "page": page, "num": num, "channelID": self.controller.channelID}
     def Network_getRooms(self, data):
         print "get rooms"
         channelID = data["channelID"]
-        self._server.getRooms(channelID)
+        page = data["page"]
+        num = data["num"]
+        self._server.getRooms(channelID, page, num)
 
 
 class BoxesServer(PodSixNet.Server.Server):
@@ -69,8 +72,8 @@ class BoxesServer(PodSixNet.Server.Server):
         PodSixNet.Server.Server.__init__(self, *args, **kwargs)
         self.games = {}
         self.waitGames = {}
+        self.waitGamesDeque = sliceable_deque()
         self.channelObjs = {}
-        self.queue = None
         self.currentGameIndex=0
         self.currentChannelIndex = 0
 
@@ -94,7 +97,8 @@ class BoxesServer(PodSixNet.Server.Server):
         channel = self.channelObjs[channelID]
         channel.gameID = gameID
         channel.Send({"action": "openRoom", "gameID": gameID})
-        self.waitGames[gameID] = level
+        # 操作等待集合
+        self.addWaitingRoom(gameID, level)
         self.games[gameID] = GameJudge(channel, gameID, level)
         self.currentGameIndex += 1
         print self.waitGames
@@ -123,11 +127,20 @@ class BoxesServer(PodSixNet.Server.Server):
         awayChannel.Send({"action": "joined", "turn": not currentGame.turn, "gameID": gameID, "level": level})
 
         # 从等待集合里去除
+        self.deleteWaitingRoom(gameID)
+
+    def addWaitingRoom(self, gameID, level):
+        self.waitGames[gameID] = level
+        self.waitGamesDeque.append((gameID, level))
+
+    def deleteWaitingRoom(self, gameID):
         del self.waitGames[gameID]
+        self.waitGamesDeque.remove((gameID, level))
 
     def deleteRoom(self, gameID):
         if self.waitGames.has_key(gameID):
-            del self.waitGames[gameID]
+            # 操作等待集合
+            self.deleteWaitingRoom(gameID)
             del self.games[gameID]
 
     def leaveRoom(self, gameID, channelID):
@@ -140,7 +153,7 @@ class BoxesServer(PodSixNet.Server.Server):
         print gameID, channelID
         if (channel == game.player0):
             print "home leaving room"
-            self.waitGames[gameID] = game.level
+            self.addWaitingRoom(gameID, game.level)
             game.player0.Send({"action": "flee"})
             # 客场玩家成为房主
             if (game.player1 != None):
@@ -154,7 +167,7 @@ class BoxesServer(PodSixNet.Server.Server):
         else:
             print "away leaving room"
             # 客场玩家逃跑
-            self.waitGames[gameID] = game.level
+            self.addWaitingRoom(gameID, game.level)
             game.player1.Send({"action": "flee"})
             game.player0.Send({"action": "restart"})
             game.player1 = None
@@ -200,13 +213,37 @@ class BoxesServer(PodSixNet.Server.Server):
                 game.player0.Send({"action": "drawGame"})
                 game.player1.Send({"action": "drawGame"})
 
-    def getRooms(self, channelID):
-        print channelID
-        print self.channelObjs
+    def getRooms(self, channelID, page, num):
         print self.waitGames
+        print "server"
         channel = self.channelObjs[channelID]
-        print channel
-        channel.Send({"action": "setRooms", "rooms": self.waitGames})
+
+        startID = page * num
+        endID = page * num + num
+        quelen = len(self.waitGamesDeque)
+        print "startID", startID
+        print "endID", endID
+        print "queue len", quelen
+        rooms = []
+
+        hasLastPage, hasNextPage = True, True
+
+        if startID <= 0:
+            hasLastPage = False
+        if quelen < endID:
+            hasNextPage = False
+
+        if quelen <= startID:
+            print "none"
+            rooms = []
+        elif quelen < endID:
+            rooms = self.waitGamesDeque[startID: quelen]
+        else:
+            rooms = self.waitGamesDeque[startID: endID]
+        print "send"
+        rooms = list(rooms)
+        print rooms
+        channel.Send({"action": "setRooms", "rooms": rooms, "l": hasLastPage, "n": hasNextPage})
 
 
 class GameJudge:
