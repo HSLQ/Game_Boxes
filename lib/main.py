@@ -41,7 +41,7 @@ class Main(object):
         self.rules = Rules(self.width, self.height)
         self.setLevel = SetLevel(self.width, self.height)
         self.matching = Matching((self.width, self.height), self)
-        self.game = Game(6, self)
+        self.game = Game(self)
         # finish 界面的大小和游戏界面一样
         self.finish = Finish((self.game.width, self.game.height))
 
@@ -144,6 +144,9 @@ class Main(object):
                 if STATE.game == self.state:
                     self.gameNet.exitFlag = True
                     self.gameNet.leaveServer(self.game.gameID)
+                    sleep(0.5)
+                    pygame.quit()
+                    exit()
                 else:
                     pygame.quit()
                     exit()

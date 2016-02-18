@@ -3,19 +3,14 @@
 
 __author__ = 'Piratf'
 
+from div import Div
 import pygame
 
-class Background(object):
+class Background(Div, object):
     """draw background"""
     def __init__(self, (width, height), (x, y) = (0, 0)):
         # super(Background, self).__init__()
-        self.initAttr((width, height), (x, y))
-
-    def initAttr(self, (width, height), (x, y)):
-        self.width = width
-        self.height = height
-        self.x = x
-        self.y = y
+        Div.__init__(self, (width, height), (x, y))
         self.panel = pygame.Surface((self.width, self.height), depth=32)
 
     def setColor(self, color):
@@ -23,7 +18,6 @@ class Background(object):
             self.panel = color
         else:
             self.panel.fill(color)
-
 
     def draw(self, screen):
         screen.blit(self.panel, (self.x, self.y))

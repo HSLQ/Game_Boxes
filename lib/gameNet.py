@@ -28,6 +28,7 @@ class GameNet(ConnectionListener):
 
     def leaveServer(self, gameID):
         # print "leave server", gameID
+        print "leave server"
         self.Send({"action": "leaveRoom", "gameID": gameID, "channelID": self.controller.channelID})
 
     # 开启新的游戏房间
@@ -54,10 +55,12 @@ class GameNet(ConnectionListener):
         while (self.rooms == None):
             self.pump()
             if (time.time() - startTime > 1) and rec < 3:
+                rec += 1
                 print "Network error, trying reconnecting"
                 self.connectToServer()
-                return self.getRooms(matching, page, num)
-            if (rec > 3):
+                self.Send({"action": "getRooms", "page": page, "num": num, "channelID": self.controller.channelID})
+            if (rec >= 3):
+                print "can't connectToServer"
                 matching.rooms = []
                 return False
         matching.rooms = self.rooms

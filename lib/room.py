@@ -17,6 +17,8 @@ class Room(Div, Button):
     def __init__(self, roomID, roomLevel, (width, height), (x, y)):
         Div.__init__(self, (width, height), (x, y))
         Button.__init__(self, self.rect)
+        self.background = Background((width, height), (x, y))
+        self.background.setColor((200, 200, 200))
         self.initAttr()
         self.setID(roomID)
         self.setLevel(roomLevel)
@@ -66,7 +68,7 @@ class Room(Div, Button):
             )
     
     def draw(self, screen):
-        Div.draw(self, screen)
+        self.background.draw(screen)
         Button.draw(self, screen)
         self.roomIDLabel.draw(screen)
         self.roomIDText.draw(screen)

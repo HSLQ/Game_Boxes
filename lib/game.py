@@ -14,24 +14,24 @@ from pygame.locals import *
 
 class Game(object):
     """main frame of the game"""
-    def __init__(self, level, controller):
+    def __init__(self, controller):
         # super(game, self).__init__()
         self.controller = controller
-        self.initAttr(level)
+        self.initAttr()
         self.initElement()
 
-    def setLevel(self, level):
+    def setLevel(self, level = 6):
         self.boardWidth, self.boardHeight = self.board.setLevel(level)
         self.height = self.boardHeight + self.edgeWidth * 2
         self.width = self.boardWidth + self.hudWidth
         self.initContext()
 
-    def initAttr(self, level):
+    def initAttr(self):
         self.hudWidth = HUD["HUD_WIDTH"]
         self.edgeWidth = GAME["EDGE_WIDTH"]
         self.turn = True
-        self.level = level
         self.board = Board((self.hudWidth, self.edgeWidth))
+        # self.level = self.board.level
         self.height = self.board.height + self.edgeWidth * 2
         self.width = self.board.width + self.hudWidth
         # 根据窗口高度设置 HUD 高度

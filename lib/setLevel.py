@@ -3,6 +3,7 @@
 
 __author__ = 'Piratf'
 
+from div import Div
 from util import getFilePath
 from settings import SETLEVEL, STATE
 from background import Background
@@ -13,21 +14,21 @@ from imageButton import ImageButton
 from game import Game
 import pygame
 
-class SetLevel(object):
+class SetLevel(Div, object):
     """set level frame"""
     def __init__(self, width, height):
         # super(SetLevel, self).__init__()
+        Div.__init__(self, (width, height))
         self.initAttr(width, height)
 
     def initAttr(self, width, height):
-        self.width, self.height = width, height
         self.justClicked = SETLEVEL["JUST_CLICKED"]
         # 默认 level
         self.loadResouce()
         self.setArrow()
         self.setLevel()
 
-        self.background = Background((width, height))
+        self.background = Background((self.width, self.height))
 
         titleOffTop = 150
 

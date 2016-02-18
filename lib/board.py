@@ -7,6 +7,7 @@ from settings import BOARD
 from background import Background
 import pygame
 import math
+import inspect
 
 class Board(object):
     """board for playing"""
@@ -50,7 +51,7 @@ class Board(object):
         self.turn = turn
 
     def initBoardArray(self):
-        print "init board"
+        print "init board array"
         self.boardH = [[False for x in range(self.levelH)] for y in range(self.levelV + 1)]
         self.boardV = [[False for x in range(self.levelH + 1)] for y in range(self.levelV)]
         self.ownerBoard = [[0 for x in range(self.levelH)] for y in range(self.levelV)]

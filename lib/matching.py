@@ -19,7 +19,6 @@ from math import ceil
 # 获得标号后使用 setRooms 刷新房间对象
 # 使用 setCurrentRooms 构造当前页面的房间对象
 # 
-# 
 # 新建 panel，返回方块的大小
 # 根据大小实例化方块
 # 实例化完成后传递到 panel 中，
