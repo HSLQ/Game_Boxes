@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*
 # Filename: sliceable_deque.py
 
-# http://stackoverflow.com/questions/10003143/how-to-slice-a-deque
-__author__ = 'Piratf'
+# from http://stackoverflow.com/questions/10003143/how-to-slice-a-deque
+# __author__ = 'Piratf'
 
 import collections
 import itertools

@@ -4,6 +4,7 @@
 __author__ = 'Piratf'
 
 from settings import GAME, HUD, STATE
+from div import Div
 from textButton import TextButton
 from centeredImage import CenteredImage
 from background import Background
@@ -12,7 +13,7 @@ from board import Board
 import pygame
 from pygame.locals import *
 
-class Game(object):
+class Game(Div, object):
     """main frame of the game"""
     def __init__(self, controller):
         # super(game, self).__init__()
@@ -27,13 +28,13 @@ class Game(object):
         self.initContext()
 
     def initAttr(self):
+        self.turn = True
         self.hudWidth = HUD["HUD_WIDTH"]
         self.edgeWidth = GAME["EDGE_WIDTH"]
-        self.turn = True
+
+        # 先获取 board 部分的大小，再自适应自己的大小
         self.board = Board((self.hudWidth, self.edgeWidth))
-        # self.level = self.board.level
-        self.height = self.board.height + self.edgeWidth * 2
-        self.width = self.board.width + self.hudWidth
+        Div.__init__(self, (self.board.width + self.hudWidth, self.board.height + self.edgeWidth * 2))
         # 根据窗口高度设置 HUD 高度
         self.hud = Hud((0, self.height), (0, 0))
         self.hud.setMark(self.turn)

@@ -4,22 +4,21 @@
 __author__ = 'Piratf'
 
 from settings import HUD
+from div import Div
 from background import Background
 from centeredImage import CenteredImage
 from centeredText import CenteredText
 import pygame
 
-class Hud(object):
+class Hud(Div, object):
     """hud panel"""
-    def __init__(self, (width, height), (x, y)):
+    def __init__(self, (width, height), (x, y) = (0, 0)):
         # super(Hud, self).__init__()
+        Div.__init__(self, (HUD["HUD_WIDTH"], height), (x, y))
         self.initAttr((width, height), (x, y))
         self.initElement()
     
     def initAttr(self, (width, height), (x, y)):
-        self.width = HUD["HUD_WIDTH"]
-        self.height = height
-        self.x, self.y = x, y
         self.started = False
         self.myScore = 0
         self.otherScore = 0

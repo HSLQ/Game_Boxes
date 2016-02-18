@@ -4,20 +4,21 @@
 __author__ = 'Piratf'
 
 from settings import BOARD
+from div import Div
 from background import Background
 import pygame
 import math
 import inspect
 
-class Board(object):
+class Board(Div, object):
     """board for playing"""
     def __init__(self, (posX, posY)):
         # super(Board, self).__init__()
-        self.initAttr((posX, posY))
+        Div.__init__(self, (BOARD["BOARD_WIDTH"], BOARD["BOARD_HEIGHT"]), (posX, posY))
+        self.initAttr()
         self.initBoardArray()
 
-    def initAttr(self, (posX, posY)):
-        self.width, self.height = BOARD["BOARD_WIDTH"], BOARD["BOARD_HEIGHT"]
+    def initAttr(self):
         self.stickLength = int(BOARD["STICK_LENGTH"])
         self.separatorLength = int(BOARD["SEPARATOR_LENGTH"])
         self.separatorImage = BOARD["SEPARATOR_IMAGE"]
@@ -25,7 +26,6 @@ class Board(object):
         self.normalLineImageH = pygame.transform.rotate(self.normalLineImageV, -90)
         self.doneLineImageV = BOARD["STICK_DONE_IMAGE"]
         self.doneLineImageH = pygame.transform.rotate(self.doneLineImageV, -90)
-        self.x, self.y = posX, posY
 
         self.greenplayerBase = BOARD["GREEN_SQUARE"]
         self.yellowplayerBase = BOARD["YELLOW_SQUARE"]
