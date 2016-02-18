@@ -1,6 +1,7 @@
 ##Game-Boxes
 
 usage: 
+> + 运行版本: python 2.7
 > + `python2 server.py` 启动服务器
 > + `python2 run_game.py` 启动客户端
 
