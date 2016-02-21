@@ -65,7 +65,7 @@ class Main(object):
         self.game.setHome()
 
     def joinGame(self, level, gameID, turn):
-        self.game = Game(level, self)
+        self.game = Game(self)
         self.game.gameID = gameID
         self.state = STATE.game
         self.game.setLevel(level)

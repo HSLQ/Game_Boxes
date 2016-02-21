@@ -118,6 +118,7 @@ class BoxesServer(PodSixNet.Server.Server):
         currentGame = self.games[gameID]
         level = currentGame.level
 
+
         # 主场玩家
         homeChannel = currentGame.player0
 
@@ -127,13 +128,13 @@ class BoxesServer(PodSixNet.Server.Server):
         awayChannel.Send({"action": "joined", "turn": not currentGame.turn, "gameID": gameID, "level": level})
 
         # 从等待集合里去除
-        self.deleteWaitingRoom(gameID)
+        self.deleteWaitingRoom(gameID, level)
 
     def addWaitingRoom(self, gameID, level):
         self.waitGames[gameID] = level
         self.waitGamesDeque.append((gameID, level))
 
-    def deleteWaitingRoom(self, gameID):
+    def deleteWaitingRoom(self, gameID, level):
         del self.waitGames[gameID]
         self.waitGamesDeque.remove((gameID, level))
 
