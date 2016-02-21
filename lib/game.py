@@ -63,6 +63,13 @@ class Game(Div, object):
         if self.hud.started:
             self.controller.gameNet.placeLine(data, self.gameID, self.order)
 
+    def placeLineAnswer(self, turn, x, y, h, point, order):
+        self.setTurn(turn)
+        if order == self.order:
+            self.board.placeLine(x, y, h, point, True)
+        else:
+            self.board.placeLine(x, y, h, point, False)
+
     def setTurn(self, turn):
         self.hud.setMark(turn)
         self.board.setTurn(turn)
@@ -96,13 +103,6 @@ class Game(Div, object):
     def restart(self):
         self.board.restart()
         self.hud.restart()
-
-    def placeLineAnswer(self, turn, x, y, h, point, order):
-        self.setTurn(turn)
-        if order == self.order:
-            self.board.placeLine(x, y, h, point, True)
-        else:
-            self.board.placeLine(x, y, h, point, False)
 
     def draw(self):
         # self.screen.set_clip(None)

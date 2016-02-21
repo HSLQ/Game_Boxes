@@ -173,21 +173,28 @@ class BoxesServer(PodSixNet.Server.Server):
             game.player0.Send({"action": "restart"})
             game.player1 = None
 
+    def getScore(self, game, point, order):
+        if point == None: 
+            return
+        vPos = int(point["y"])
+        hPos = int(point["x"])
+        print "getScore: ", vPos, hPos
+        # 系统棋盘记录得分
+        game.owner[vPos][hPos] = True
+        # 系统玩家得分 
+        if 0 == order:
+            game.addScore0()
+        else:
+            game.addScore1()
+
     def placeLine(self, x, y, h, point, gameID, order):
         print "server"
         game = self.games[gameID]
         # 出现有玩家得分
-        if point != None:
-            vPos = int(point["y"])
-            hPos = int(point["x"])
-            print "getScore: ", vPos, hPos
-            # 系统棋盘记录得分
-            game.owner[vPos][hPos] = True
-            # 系统玩家得分 
-            if 0 == order:
-                game.addScore0()
-            else:
-                game.addScore1()
+
+        if point[0] != None or point[1] != None:
+            self.getScore(game, point[0], order)
+            self.getScore(game, point[1], order)
             # 玩家得分时可以再进行一个回合
             game.turn = not game.turn
         home = game.player0

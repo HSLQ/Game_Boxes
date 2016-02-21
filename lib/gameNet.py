@@ -123,6 +123,7 @@ class GameNet(ConnectionListener):
         self.exit() if self.exitFlag else self.controller.enterMenu()
 
     def Network_place(self, data):
+        print data
         x = data["x"]
         y = data["y"]
         h = data["h"]

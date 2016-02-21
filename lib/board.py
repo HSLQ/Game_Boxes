@@ -122,21 +122,23 @@ class Board(Div, object):
     # 返回得分座标 或 None
     def isGetPoint(self, hPos, vPos, is_horizontal):
         board = self.boardH if is_horizontal else self.boardV
+        ret0 = None
+        ret1 = None
         if (is_horizontal):
             if (vPos < self.levelV and self.boardH[vPos + 1][hPos] and self.boardV[vPos][hPos] and self.boardV[vPos][hPos + 1]):
                 self.ownerBoard[vPos][hPos] = "win"
-                return {"x":hPos, "y":vPos}
+                ret0 = {"x":hPos, "y":vPos}
             if (vPos > 0 and self.boardH[vPos - 1][hPos] and self.boardV[vPos - 1][hPos] and  self.boardV[vPos - 1][hPos + 1]):
                 self.ownerBoard[vPos - 1][hPos] = "win"
-                return {"x":hPos, "y":vPos - 1}
+                ret1 = {"x":hPos, "y":vPos - 1}
         else:
             if (hPos > 0 and self.boardV[vPos][hPos - 1] and self.boardH[vPos][hPos - 1] and self.boardH[vPos + 1][hPos - 1]):
                 self.ownerBoard[vPos][hPos - 1] = "win"
-                return {"x":hPos - 1, "y":vPos}
+                ret0 = {"x":hPos - 1, "y":vPos}
             if (hPos < self.levelH and self.boardV[vPos][hPos + 1] and self.boardH[vPos][hPos] and self.boardH[vPos + 1][hPos]):
                 self.ownerBoard[vPos][hPos] = "win"
-                return {"x":hPos, "y":vPos}
-        return None
+                ret1 = {"x":hPos, "y":vPos}
+        return [ret0, ret1]
 
     # 重新初始化棋盘，重新开始游戏
     def restart(self):
@@ -199,11 +201,17 @@ class Board(Div, object):
     def placeLine(self, x, y, h, point, win):
         board = self.boardH if h else self.boardV
         board[y][x] = True
-        if point != None:
+        if point[0] != None:
             if win:
-                self.ownerBoard[point["y"]][point["x"]] = "win"
+                self.ownerBoard[point[0]["y"]][point[0]["x"]] = "win"
             else:
-                self.ownerBoard[point["y"]][point["x"]] = "lose"
+                self.ownerBoard[point[0]["y"]][point[0]["x"]] = "lose"
+        if point[1] != None:
+            if win:
+                self.ownerBoard[point[1]["y"]][point[1]["x"]] = "win"
+            else:
+                self.ownerBoard[point[1]["y"]][point[1]["x"]] = "lose"
+
 
     def setHome(self):
         self.marker = self.greenplayer
